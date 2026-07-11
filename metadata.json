@@ -1,0 +1,6 @@
+{
+  "name": "Transports Alger",
+  "description": "Carte interactive, itinéraires optimisés, perturbations en direct et horaires hors-ligne pour le métro, tramway, RER et bus de la Wilaya d'Alger.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
