@@ -225,7 +225,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
           stationId: startId,
           stationName: station?.name || '',
           type: 'walk',
-          instruction: "Vous êtes déjà à destination !",
+          instruction: "Vous êtes déjà à la station de destination !",
           duration: 0
         }],
         totalDuration: 0,
@@ -235,10 +235,8 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
     }
 
     // Graph structure for Dijkstra
-    // { stationId: { neighborId: { weight: number, type: TransportType | 'walk', lineName: string } } }
     const graph: Record<string, Record<string, { weight: number; type: TransportType | 'walk'; lineName?: string }>> = {};
 
-    // Initialize graph with empty records
     STATIONS.forEach(s => {
       graph[s.id] = {};
     });
@@ -250,11 +248,10 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         const v = line.stations[i + 1];
         
         if (graph[u] && graph[v]) {
-          // Travel time between adjacent stations is generally 2 minutes for Metro/Tram, 3 minutes for Telepherique, 4 minutes for Train, 6 minutes for Bus, 5 minutes for Private Bus
           let weight = 2;
           if (line.type === 'telepherique') weight = 3;
           if (line.type === 'train') weight = 4;
-          if (line.type === 'bus') weight = 6;
+          if (line.type === 'bus') weight = 5;
           if (line.type === 'bus_priv') weight = 5;
 
           graph[u][v] = { weight, type: line.type, lineName: line.name };
@@ -263,11 +260,10 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       }
     });
 
-    // 2. Add manual connection edges with low weights (walk/transfer: typically 5 minutes)
+    // 2. Add connection edges (walk/transfer: 5 minutes)
     STATIONS.forEach(s => {
       s.connections.forEach(connId => {
         if (graph[s.id] && graph[connId]) {
-          // If they aren't already connected, or if they are connected on different modes (interchange)
           if (!graph[s.id][connId]) {
             graph[s.id][connId] = { weight: 5, type: 'walk', lineName: 'Correspondance à pied' };
             graph[connId][s.id] = { weight: 5, type: 'walk', lineName: 'Correspondance à pied' };
@@ -276,7 +272,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       });
     });
 
-    // Dijkstra's algorithm
+    // Dijkstra algorithm
     const distances: Record<string, number> = {};
     const previous: Record<string, { parentId: string; type: TransportType | 'walk'; lineName?: string; weight: number } | null> = {};
     const queue = new Set<string>();
@@ -290,7 +286,6 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
     distances[startId] = 0;
 
     while (queue.size > 0) {
-      // Find node in queue with minimal distance
       let u: string | null = null;
       queue.forEach(nodeId => {
         if (u === null || distances[nodeId] < distances[u]) {
@@ -299,7 +294,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       });
 
       if (u === null || distances[u] === Infinity) break;
-      if (u === endId) break; // Reached destination
+      if (u === endId) break;
 
       queue.delete(u);
 
@@ -321,70 +316,175 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
 
     if (distances[endId] === Infinity) return null;
 
-    // Reconstruct path
-    const pathSteps: RouteStep[] = [];
+    // Reconstruct raw hop list
+    interface RawHop {
+      fromId: string;
+      fromName: string;
+      toId: string;
+      toName: string;
+      type: TransportType | 'walk';
+      lineName?: string;
+      weight: number;
+    }
+
+    const rawHops: RawHop[] = [];
     let currentId = endId;
 
     while (previous[currentId] !== null) {
       const edge = previous[currentId]!;
-      const station = STATIONS.find(s => s.id === currentId);
-      
-      let instruction = '';
-      if (edge.type === 'walk') {
-        instruction = `Marchez jusqu'à ${station?.name}`;
-      } else {
-        instruction = `Prenez la ligne ${edge.lineName} vers ${station?.name}`;
-      }
+      const fromStation = STATIONS.find(s => s.id === edge.parentId);
+      const toStation = STATIONS.find(s => s.id === currentId);
 
-      pathSteps.unshift({
-        stationId: currentId,
-        stationName: station?.name || '',
+      rawHops.unshift({
+        fromId: edge.parentId,
+        fromName: fromStation?.name || '',
+        toId: currentId,
+        toName: toStation?.name || '',
         type: edge.type,
         lineName: edge.lineName,
-        duration: edge.weight,
-        instruction
+        weight: edge.weight
       });
 
       currentId = edge.parentId;
     }
 
-    // Add initial step
+    // CONSOLIDATE RAW HOPS INTO TURN-BY-TURN LEGS
+    const consolidatedSteps: RouteStep[] = [];
     const startStation = STATIONS.find(s => s.id === startId);
-    if (pathSteps.length > 0) {
-      pathSteps.unshift({
-        stationId: startId,
-        stationName: startStation?.name || '',
-        type: 'walk',
-        instruction: `Départ de ${startStation?.name}`,
-        duration: 0
-      });
-    }
 
-    // Calculate details
-    let totalCost = 0;
+    // Initial Departure Step
+    consolidatedSteps.push({
+      stationId: startId,
+      stationName: startStation?.name || '',
+      type: 'walk',
+      instruction: `📍 Départ de la station ${startStation?.name}`,
+      duration: 0
+    });
+
+    let currentLeg: {
+      fromStationId: string;
+      fromStationName: string;
+      toStationId: string;
+      toStationName: string;
+      type: TransportType | 'walk';
+      lineName?: string;
+      duration: number;
+      stationCount: number;
+    } | null = null;
+
     let transfers = 0;
-    let currentMode: TransportType | 'walk' | null = null;
+    let totalCost = 0;
+    let usedModes = new Set<TransportType>();
 
-    pathSteps.forEach(step => {
-      if (step.type !== 'walk' && step.type !== currentMode) {
-        if (currentMode !== null) transfers++;
-        currentMode = step.type;
-        
-        // Accumulate cost
-        if (step.type === 'metro') totalCost += 50;
-        else if (step.type === 'tram') totalCost += 40;
-        else if (step.type === 'bus') totalCost += 30;
-        else if (step.type === 'bus_priv') totalCost += 35;
-        else if (step.type === 'telepherique') totalCost += 30;
-        else if (step.type === 'train') totalCost += 45; // base banlieue
+    rawHops.forEach((hop) => {
+      if (!currentLeg) {
+        currentLeg = {
+          fromStationId: hop.fromId,
+          fromStationName: hop.fromName,
+          toStationId: hop.toId,
+          toStationName: hop.toName,
+          type: hop.type,
+          lineName: hop.lineName,
+          duration: hop.weight,
+          stationCount: 1,
+        };
+      } else if (currentLeg.type === hop.type && currentLeg.lineName === hop.lineName) {
+        // Continue same line/mode leg
+        currentLeg.toStationId = hop.toId;
+        currentLeg.toStationName = hop.toName;
+        currentLeg.duration += hop.weight;
+        currentLeg.stationCount += 1;
+      } else {
+        // Flush previous leg
+        if (currentLeg.type === 'walk') {
+          consolidatedSteps.push({
+            stationId: currentLeg.toStationId,
+            stationName: currentLeg.toStationName,
+            type: 'walk',
+            lineName: currentLeg.lineName,
+            duration: currentLeg.duration,
+            instruction: `🔄 Correspondance à pied vers la station ${currentLeg.toStationName} (${currentLeg.duration} min)`,
+          });
+        } else {
+          usedModes.add(currentLeg.type);
+          consolidatedSteps.push({
+            stationId: currentLeg.toStationId,
+            stationName: currentLeg.toStationName,
+            type: currentLeg.type,
+            lineName: currentLeg.lineName,
+            duration: currentLeg.duration,
+            instruction: `Embarquez à ${currentLeg.fromStationName} sur ${currentLeg.lineName} et descendez à ${currentLeg.toStationName} (${currentLeg.stationCount} stations - ${currentLeg.duration} min)`,
+          });
+        }
+
+        // Start new leg
+        if (hop.type !== 'walk' && currentLeg.type !== 'walk') {
+          transfers++;
+        }
+
+        currentLeg = {
+          fromStationId: hop.fromId,
+          fromStationName: hop.fromName,
+          toStationId: hop.toId,
+          toStationName: hop.toName,
+          type: hop.type,
+          lineName: hop.lineName,
+          duration: hop.weight,
+          stationCount: 1,
+        };
       }
     });
 
+    // Flush last leg
+    if (currentLeg) {
+      const leg = currentLeg as any;
+      if (leg.type === 'walk') {
+        consolidatedSteps.push({
+          stationId: leg.toStationId,
+          stationName: leg.toStationName,
+          type: 'walk',
+          lineName: leg.lineName,
+          duration: leg.duration,
+          instruction: `🔄 Correspondance à pied vers ${leg.toStationName} (${leg.duration} min)`,
+        });
+      } else {
+        usedModes.add(leg.type);
+        consolidatedSteps.push({
+          stationId: leg.toStationId,
+          stationName: leg.toStationName,
+          type: leg.type,
+          lineName: leg.lineName,
+          duration: leg.duration,
+          instruction: `Embarquez à ${leg.fromStationName} sur ${leg.lineName} et descendez à la station ${leg.toStationName} (${leg.stationCount} stations - ${leg.duration} min)`,
+        });
+      }
+    }
+
+    // Final arrival step
+    const destStation = STATIONS.find(s => s.id === endId);
+    consolidatedSteps.push({
+      stationId: endId,
+      stationName: destStation?.name || '',
+      type: 'walk',
+      instruction: `🎉 Arrivée à la station ${destStation?.name}`,
+      duration: 0
+    });
+
+    // Calculate total cost based on unique transport modes used
+    usedModes.forEach(mode => {
+      if (mode === 'metro') totalCost += 50;
+      else if (mode === 'tram') totalCost += 40;
+      else if (mode === 'train') totalCost += 45;
+      else if (mode === 'bus') totalCost += 30;
+      else if (mode === 'bus_priv') totalCost += 35;
+      else if (mode === 'telepherique') totalCost += 30;
+    });
+
     return {
-      steps: pathSteps,
+      steps: consolidatedSteps,
       totalDuration: distances[endId],
-      totalCost: totalCost || 50, // Min cost 50 DA
-      transfers
+      totalCost: totalCost || 50,
+      transfers: Math.max(0, usedModes.size - 1)
     };
   }
 
