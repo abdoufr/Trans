@@ -7,8 +7,9 @@ import RoutePlanner from './components/RoutePlanner';
 import DisruptionAlerts from './components/DisruptionAlerts';
 import OfflineTimetables from './components/OfflineTimetables';
 import LiveNavigationOverlay from './components/LiveNavigationOverlay';
+import DirectLinesTable from './components/DirectLinesTable';
 import { Language, TRANSLATIONS } from './translations';
-import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight, Languages } from 'lucide-react';
+import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight, Languages, Route } from 'lucide-react';
 
 export default function App() {
   // State variables
@@ -31,7 +32,7 @@ export default function App() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [navRoute, setNavRoute] = useState<RouteResult | null>(null);
   
-  const [activeTab, setActiveTab] = useState<'route' | 'timetable' | 'alerts' | 'favorites'>('route');
+  const [activeTab, setActiveTab] = useState<'route' | 'lines' | 'timetable' | 'alerts' | 'favorites'>('route');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [algiersTime, setAlgiersTime] = useState('');
 
@@ -273,6 +274,7 @@ export default function App() {
           <div className="flex bg-slate-200/60 p-1.5 rounded-2xl gap-1">
             {([
               { id: 'route', label: t.tabRoute, icon: Navigation },
+              { id: 'lines', label: t.tabDirectLines, icon: Route },
               { id: 'timetable', label: t.tabTimetable, icon: CalendarDays },
               { id: 'alerts', label: t.tabAlerts, icon: BellRing },
               { id: 'favorites', label: t.tabFavorites, icon: Star },
@@ -312,6 +314,16 @@ export default function App() {
                   setNavRoute(route);
                   setIsNavigating(true);
                 }}
+              />
+            )}
+
+            {activeTab === 'lines' && (
+              <DirectLinesTable
+                lines={lines}
+                stations={stations}
+                lang={lang}
+                onSelectLine={(line) => setSelectedLine(line)}
+                onSelectStation={(station) => setSelectedStation(station)}
               />
             )}
 

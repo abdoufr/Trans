@@ -37,6 +37,7 @@ export interface Translations {
   liveAttente: string;
   reportIncident: string;
   favTitle: string;
+  tabDirectLines: string;
 }
 
 export const TRANSLATIONS: Record<Language, Translations> = {
@@ -77,6 +78,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     liveAttente: "📍 Attente live :",
     reportIncident: "Signaler un incident",
     favTitle: "Trajets Récurrents Favoris",
+    tabDirectLines: "Lignes Directes",
   },
   ar: {
     appName: "كيفاش نروح",
@@ -115,6 +117,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     liveAttente: "📍 الانتظار المباشر :",
     reportIncident: "الإبلاغ عن خلل",
     favTitle: "الرحلات المفضلة",
+    tabDirectLines: "الخطوط المباشرة",
   },
   dz: {
     appName: "كيفاش نروح",
@@ -153,6 +156,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     liveAttente: "📍 الوقت المتبقي :",
     reportIncident: "سجل مشكل فالطريق",
     favTitle: "التنقلات المفضلة",
+    tabDirectLines: "خطوط ديريكت",
   },
   en: {
     appName: "Kifach Nro7",
@@ -191,5 +195,6 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     liveAttente: "📍 Live wait:",
     reportIncident: "Report incident",
     favTitle: "Saved Favorite Routes",
+    tabDirectLines: "Direct Lines",
   }
 };
