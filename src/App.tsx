@@ -302,6 +302,7 @@ export default function App() {
             {activeTab === 'route' && (
               <RoutePlanner
                 stations={stations}
+                lines={lines}
                 lang={lang}
                 onRouteCalculated={handleRouteCalculated}
                 onSaveRoute={handleSaveRoute}

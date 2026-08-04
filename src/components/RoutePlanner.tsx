@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Station, RouteResult, SavedRoute } from '../types';
+import { Station, LineData, RouteResult, SavedRoute } from '../types';
+import { LINES } from '../data';
+import { computeRoute } from '../routeEngine';
 import { MapPin, Navigation, ArrowRightLeft, CreditCard, Clock, Star, AlertCircle, Share2, Sparkles, AlertTriangle, Compass, Target } from 'lucide-react';
 
 function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -18,6 +20,7 @@ import { Language, TRANSLATIONS } from '../translations';
 
 interface RoutePlannerProps {
   stations: Station[];
+  lines?: LineData[];
   lang: Language;
   onRouteCalculated: (route: RouteResult | null, originId: string, destId: string) => void;
   onSaveRoute: (originId: string, destId: string, name: string) => void;
@@ -28,6 +31,7 @@ interface RoutePlannerProps {
 
 export default function RoutePlanner({
   stations,
+  lines,
   lang,
   onRouteCalculated,
   onSaveRoute,
@@ -117,17 +121,19 @@ export default function RoutePlanner({
         body: JSON.stringify({ originId: oId, destinationId: dId }),
       });
 
-      const data = await response.json();
-      if (response.ok && data.route) {
-        setRouteResult(data.route);
-        setAiAdvice(data.aiAdvice);
-        onRouteCalculated(data.route, oId, dId);
-      } else {
-        setError(data.error || "Impossible d'élaborer un itinéraire.");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.route) {
+          setRouteResult(data.route);
+          setAiAdvice(data.aiAdvice);
+          onRouteCalculated(data.route, oId, dId);
+          return;
+        }
       }
+      // If server route is missing or non-200, use local real Dijkstra engine
+      calculateRouteLocally(oId, dId);
     } catch (err) {
-      // Local fallback calculation if server is unreachable
-      console.log('Calculating route locally (offline mode)...');
+      console.log('Calculating route locally using client-side Dijkstra engine...');
       calculateRouteLocally(oId, dId);
     } finally {
       setIsLoading(false);
@@ -135,37 +141,16 @@ export default function RoutePlanner({
   };
 
   const calculateRouteLocally = (oId: string, dId: string) => {
-    // Basic fallback route finder (BFS)
-    const start = stations.find((s) => s.id === oId);
-    const end = stations.find((s) => s.id === dId);
-    if (!start || !end) return;
+    const activeLines = lines && lines.length > 0 ? lines : LINES;
+    const computed = computeRoute(stations, activeLines, oId, dId);
 
-    // Build a simple schematic fallback step
-    const mockRoute: RouteResult = {
-      steps: [
-        {
-          stationId: oId,
-          stationName: start.name,
-          type: 'walk',
-          duration: 0,
-          instruction: `Départ de ${start.name}`,
-        },
-        {
-          stationId: dId,
-          stationName: end.name,
-          type: start.type,
-          duration: 25,
-          instruction: `Prenez le réseau de type ${start.type.toUpperCase()} vers ${end.name}`,
-        },
-      ],
-      totalDuration: 25,
-      totalCost: start.type === 'metro' ? 50 : start.type === 'tram' ? 40 : start.type === 'bus_priv' ? 35 : 30,
-      transfers: 0,
-    };
-
-    setRouteResult(mockRoute);
-    setAiAdvice("Mode Hors-ligne : Calcul de l'itinéraire de secours basé sur votre base locale.");
-    onRouteCalculated(mockRoute, oId, dId);
+    if (computed) {
+      setRouteResult(computed);
+      setAiAdvice("Calcul de l'itinéraire basé sur le réseau complet d'Alger.");
+      onRouteCalculated(computed, oId, dId);
+    } else {
+      setError("Aucun itinéraire trouvé entre ces deux stations.");
+    }
   };
 
   const handleSwap = () => {
