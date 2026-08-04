@@ -17,7 +17,7 @@ export default function BahdjaGuideChat({ onSelectStationByName }: BahdjaGuideCh
     {
       id: 'welcome',
       sender: 'assistant',
-      text: "Marhaban ! Je suis **Bahdja Guide**, votre assistant transport pour Alger. Métro, tramway, RER SNTF ou bus ETUSA... posez-moi vos questions !",
+      text: "Marhaban ! Je suis l'assistant **Kifach Nro7** (كيفاش نروح), votre guide transport pour la Wilaya d'Alger. Métro, tramway, RER SNTF, Navette Aéroport, Téléphériques ou Bus ETUSA... posez-moi vos questions !",
       timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -28,10 +28,10 @@ export default function BahdjaGuideChat({ onSelectStationByName }: BahdjaGuideCh
 
   // Suggested questions
   const SUGGESTED_QUERIES = [
-    { label: '🎫 Tarifs des tickets', query: 'Quels sont les tarifs des tickets de métro et tramway ?' },
+    { label: '✈️ Aller à l\'Aéroport', query: 'Comment aller à l\'Aéroport d\'Alger Houari Boumediene en train SNTF ou Bus ?' },
+    { label: '🚡 Téléphériques d\'Alger', query: 'Quelles sont les lignes de téléphériques et télécabines à Alger ?' },
     { label: '🚇 Horaires du métro', query: 'Quels sont les horaires et fréquences de passage du métro d\'Alger ?' },
-    { label: '🎓 Comment aller à l\'USTHB ?', query: 'Comment se rendre à l\'Université USTHB de Bab Ezzouar ?' },
-    { label: '⏰ Dernier train SNTF', query: 'À quelle heure passe le dernier train de banlieue SNTF d\'Alger ?' },
+    { label: '🎫 Tarifs & Tickets', query: 'Quels sont les tarifs des tickets du métro, tramway et RER SNTF ?' },
   ];
 
   useEffect(() => {

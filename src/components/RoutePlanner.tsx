@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Station, RouteResult, SavedRoute } from '../types';
-import { MapPin, Navigation, ArrowRightLeft, CreditCard, Clock, Star, AlertCircle, Share2, Sparkles, AlertTriangle } from 'lucide-react';
+import { MapPin, Navigation, ArrowRightLeft, CreditCard, Clock, Star, AlertCircle, Share2, Sparkles, AlertTriangle, Compass, Target } from 'lucide-react';
+
+function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 interface RoutePlannerProps {
   stations: Station[];
@@ -22,12 +34,58 @@ export default function RoutePlanner({
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
   const [aiAdvice, setAiAdvice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [nearestInfo, setNearestInfo] = useState<{ name: string; distKm: number } | null>(null);
   const [error, setError] = useState('');
   const [routeNameInput, setRouteNameInput] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   // Auto Sort stations alphabetically for better UI lists
   const sortedStations = [...stations].sort((a, b) => a.name.localeCompare(b.name));
+
+  const handleFindNearestStation = () => {
+    setIsLocating(true);
+    setError('');
+
+    const findClosestFromCoords = (lat: number, lng: number, isFallback = false) => {
+      let closest: Station | null = null;
+      let minDist = Infinity;
+
+      stations.forEach((s) => {
+        const d = calculateDistanceKm(lat, lng, s.lat, s.lng);
+        if (d < minDist) {
+          minDist = d;
+          closest = s;
+        }
+      });
+
+      if (closest) {
+        const st = closest as Station;
+        setOriginId(st.id);
+        const dist = Math.round(minDist * 10) / 10;
+        setNearestInfo({ name: st.name, distKm: dist });
+        if (isFallback) {
+          setError(`Position GPS non disponible. Station la plus proche calculée depuis le centre d'Alger : ${st.name} (${dist} km)`);
+        }
+      }
+      setIsLocating(false);
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          findClosestFromCoords(pos.coords.latitude, pos.coords.longitude, false);
+        },
+        () => {
+          // Default to Central Algiers (36.7702, 3.0583)
+          findClosestFromCoords(36.7702, 3.0583, true);
+        },
+        { enableHighAccuracy: true, timeout: 7000 }
+      );
+    } else {
+      findClosestFromCoords(36.7702, 3.0583, true);
+    }
+  };
 
   const handleCalculate = async (oId = originId, dId = destinationId) => {
     if (!oId || !dId) {
@@ -160,13 +218,36 @@ export default function RoutePlanner({
       {/* Selectors */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center relative">
         <div className="md:col-span-2 relative">
-          <label className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block mb-1">
-            Départ
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block">
+              Départ
+            </label>
+            <button
+              type="button"
+              onClick={handleFindNearestStation}
+              disabled={isLocating}
+              className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded-md flex items-center gap-1 transition"
+            >
+              {isLocating ? (
+                <>
+                  <div className="w-2.5 h-2.5 border border-rose-600 border-t-transparent rounded-full animate-spin" />
+                  Localisation...
+                </>
+              ) : (
+                <>
+                  <Target className="w-3 h-3 text-rose-600 animate-pulse" />
+                  📍 Ma Station GPS
+                </>
+              )}
+            </button>
+          </div>
           <div className="relative">
             <select
               value={originId}
-              onChange={(e) => setOriginId(e.target.value)}
+              onChange={(e) => {
+                setOriginId(e.target.value);
+                setNearestInfo(null);
+              }}
               className="w-full bg-slate-50 border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-xl py-3 pl-10 pr-4 text-sm font-medium focus:outline-none appearance-none"
             >
               <option value="">Sélectionner la gare...</option>
@@ -212,6 +293,23 @@ export default function RoutePlanner({
           </div>
         </div>
       </div>
+
+      {nearestInfo && (
+        <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-xl border border-emerald-200/80 flex items-center justify-between animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-emerald-600 animate-pulse flex-shrink-0" />
+            <span>
+              Station la plus proche détectée : <strong>{nearestInfo.name}</strong> à environ <strong>{nearestInfo.distKm} km</strong> de vous.
+            </span>
+          </div>
+          <button
+            onClick={() => setNearestInfo(null)}
+            className="text-[10px] font-bold text-emerald-700 hover:text-emerald-900 underline ml-2"
+          >
+            Masquer
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="bg-rose-50 text-rose-600 text-xs p-3.5 rounded-xl border border-rose-100 flex items-center gap-2">
@@ -339,6 +437,8 @@ export default function RoutePlanner({
                     ? '#F59E0B'
                     : step.type === 'bus_priv'
                     ? '#06B6D4'
+                    : step.type === 'telepherique'
+                    ? '#A855F7'
                     : '#94A3B8';
 
                 return (

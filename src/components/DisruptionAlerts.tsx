@@ -80,18 +80,18 @@ export default function DisruptionAlerts({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-1 bg-slate-50 p-1 rounded-xl">
-        {(['all', 'metro', 'tram', 'train', 'bus', 'bus_priv'] as const).map((t) => (
+      <div className="flex gap-1 bg-slate-50 p-1 rounded-xl overflow-x-auto">
+        {(['all', 'metro', 'tram', 'train', 'bus', 'bus_priv', 'telepherique'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setFilterType(t)}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition ${
+            className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold capitalize whitespace-nowrap transition ${
               filterType === t
                 ? 'bg-white text-slate-800 shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            {t === 'all' ? 'Tous' : t === 'bus_priv' ? 'Bus Privé' : t}
+            {t === 'all' ? 'Tous' : t === 'bus_priv' ? 'Bus Privé' : t === 'telepherique' ? 'Téléphérique' : t}
           </button>
         ))}
       </div>
@@ -212,6 +212,7 @@ export default function DisruptionAlerts({
                     <option value="train">Train de Banlieue SNTF</option>
                     <option value="bus">Réseau Bus ETUSA</option>
                     <option value="bus_priv">Bus Privé</option>
+                    <option value="telepherique">Téléphérique / Télécabine</option>
                   </select>
                 </div>
 

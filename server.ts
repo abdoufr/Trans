@@ -168,16 +168,16 @@ Génère un court conseil de voyage de 3-4 lignes en français, chaleureux et pr
     try {
       let reply = '';
       if (ai) {
-        const systemInstruction = `Tu es "Bahdja Guide", un assistant virtuel intelligent et chaleureux dédié aux transports en commun de la Wilaya d'Alger.
-Tu aides les citoyens algérois et les visiteurs à naviguer facilement dans le réseau de transports : Métro d'Alger, Tramway, Trains de Banlieue (SNTF RER), et Bus ETUSA.
+        const systemInstruction = `Tu es l'assistant virtuel officiel de "Kifach Nro7" (كيفاش نروح), une plateforme intelligente et chaleureuse dédiée aux transports en commun de la Wilaya d'Alger.
+Tu aides les citoyens algérois et les visiteurs à naviguer facilement dans le réseau de transports : Métro d'Alger, Tramway, Trains de Banlieue (SNTF RER), Navette Aéroport Express, Téléphériques / Télécabines, et Bus ETUSA / Privés.
 Tu as accès à ces informations de référence sur le réseau :
 - Le métro d'Alger (Ligne 1) s'étend de la Place des Martyrs à El Harrach Gare, avec une branche vers Aïn Naâdja. Correspondances clés à Ruisseau (Les Fusillés) avec le Tramway et à El Harrach Gare avec le train.
 - Le tramway (Ligne T1) relie Ruisseau à Dergana Centre sur 23 km via l'USTHB, Bab Ezzouar et Bordj El Kiffan.
-- Le train de banlieue dessert l'Est (Alger Gare, Agha, Hussein Dey, Caroubier, El Harrach, Bab Ezzouar, Dar El Beida, Reghaia, Thenia) et l'Ouest (Alger-Zeralda).
-- Les bus ETUSA possèdent des hubs majeurs à 1er Mai, Audin, Tafourah, Ben Aknoun et Chevalley.
-- Les tickets coûtent environ 50 DA pour le métro, 40 DA pour le tramway, et de 40 à 100 DA pour le train selon la distance.
+- Le train de banlieue dessert l'Est (Alger Gare, Agha, Hussein Dey, Caroubier, El Harrach, Bab Ezzouar, Dar El Beida, Reghaia, Thenia), l'Aéroport d'Alger, et l'Ouest (Alger-Zeralda).
+- Les bus ETUSA possèdent des hubs majeurs à 1er Mai, Audin, Tafourah, Ben Aknoun, Bab El Oued et Chevalley.
+- Les téléphériques relient Maqam Echahid, Palais du Peuple, Notre Dame d'Afrique, Bouzaréah et Z'ghara.
 
-Réponds aux questions de l'utilisateur de manière concise, polie et pratique en français (ou en arabe algérien si sollicité). Propose des suggestions claires.`;
+Réponds aux questions de l'utilisateur de manière concise, polie et pratique en français (ou en arabe algérien / darija si sollicité). Propose des suggestions claires.`;
 
         const response = await ai.models.generateContent({
           model: 'gemini-3.5-flash',
@@ -201,9 +201,9 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         } else if (lower.includes('tarif') || lower.includes('prix') || lower.includes('ticket')) {
           reply = "Les tarifs unitaires sont : Métro (50 DA), Tramway (40 DA), Bus ETUSA (20-30 DA), Trains de banlieue SNTF (à partir de 40 DA selon les zones). Un ticket d'abonnement intermodal n'existe pas encore, il faut acheter des tickets séparés.";
         } else if (lower.includes('train') || lower.includes('rer') || lower.includes('sntf')) {
-          reply = "Le train de banlieue SNTF relie Alger (Gare Centrale / Agha) à Thénia à l'Est, et Alger à Zéralda à l'Ouest. Les gares d'interconnexion clés sont Agha et El Harrach Gare. Les trains circulent de 05:40 à 21:30.";
+          reply = "Le train de banlieue SNTF relie Alger (Gare Centrale / Agha) à Thénia à l'Est, et Alger à Zéralda à l'Ouest ainsi que l'Express Aéroport. Les gares d'interconnexion clés sont Agha et El Harrach Gare. Les trains circulent de 05:40 à 21:30.";
         } else {
-          reply = "Bienvenue sur Bahdja Guide ! Je peux vous aider sur les horaires, les trajets ou les tarifs du Métro, du Tramway, des Trains RER de banlieue et des Bus ETUSA à Alger. Que souhaitez-vous savoir ?";
+          reply = "Bienvenue sur Kifach Nro7 (كيفاش نروح) ! Je peux vous aider sur les horaires, les trajets ou les tarifs du Métro, Tramway, RER SNTF, Téléphériques et Bus à Alger. Que souhaitez-vous savoir ?";
         }
       }
 
@@ -250,8 +250,9 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         const v = line.stations[i + 1];
         
         if (graph[u] && graph[v]) {
-          // Travel time between adjacent stations is generally 2 minutes for Metro/Tram, 4 minutes for Train, 6 minutes for Bus, 5 minutes for Private Bus
+          // Travel time between adjacent stations is generally 2 minutes for Metro/Tram, 3 minutes for Telepherique, 4 minutes for Train, 6 minutes for Bus, 5 minutes for Private Bus
           let weight = 2;
+          if (line.type === 'telepherique') weight = 3;
           if (line.type === 'train') weight = 4;
           if (line.type === 'bus') weight = 6;
           if (line.type === 'bus_priv') weight = 5;
@@ -374,6 +375,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         else if (step.type === 'tram') totalCost += 40;
         else if (step.type === 'bus') totalCost += 30;
         else if (step.type === 'bus_priv') totalCost += 35;
+        else if (step.type === 'telepherique') totalCost += 30;
         else if (step.type === 'train') totalCost += 45; // base banlieue
       }
     });

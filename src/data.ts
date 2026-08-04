@@ -1,7 +1,7 @@
 import { Station, LineData, Disruption } from './types';
 
 export const STATIONS: Station[] = [
-  // --- METRO LINE 1 ---
+  // --- METRO LINE 1 & BRANCHES ---
   {
     id: 'm_martyrs',
     name: 'Place des Martyrs',
@@ -10,7 +10,7 @@ export const STATIONS: Station[] = [
     lat: 36.7801,
     lng: 3.0601,
     lines: ['M1'],
-    connections: ['m_boumendjel', 'bp_martyrs', 'b_bab_el_oued'],
+    connections: ['m_boumendjel', 'b_martyrs', 'bp_martyrs', 'b_bab_el_oued'],
     schedule: { firstDeparture: '05:00', lastDeparture: '23:00', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -32,7 +32,7 @@ export const STATIONS: Station[] = [
     lat: 36.7702,
     lng: 3.0583,
     lines: ['M1'],
-    connections: ['m_boumendjel', 'm_boukhalfa', 'b_tafourah', 't_agha'],
+    connections: ['m_boumendjel', 'm_boukhalfa', 'b_tafourah', 't_agha', 't_alger'],
     schedule: { firstDeparture: '05:05', lastDeparture: '23:05', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -54,7 +54,7 @@ export const STATIONS: Station[] = [
     lat: 36.7592,
     lng: 3.0520,
     lines: ['M1'],
-    connections: ['m_boukhalfa', 'm_idir', 'b_mai', 'bp_mai'],
+    connections: ['m_boukhalfa', 'm_idir', 'b_mai', 'bp_mai', 'tel_mai'],
     schedule: { firstDeparture: '05:09', lastDeparture: '23:09', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -87,7 +87,7 @@ export const STATIONS: Station[] = [
     lat: 36.7461,
     lng: 3.0725,
     lines: ['M1'],
-    connections: ['m_hamma', 'm_ruisseau'],
+    connections: ['m_hamma', 'm_ruisseau', 'tel_jardin'],
     schedule: { firstDeparture: '05:15', lastDeparture: '23:15', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -125,13 +125,13 @@ export const STATIONS: Station[] = [
   },
   {
     id: 'm_badr',
-    name: 'Hai El Badr',
+    name: 'Haï El Badr',
     nameAr: 'حي البدر',
     type: 'metro',
     lat: 36.7245,
     lng: 3.1115,
-    lines: ['M1'],
-    connections: ['m_soleil', 'm_ateliers', 'm_constantine', 'm_nadja'],
+    lines: ['M1', 'M1-Branche Aïn Naâdja'],
+    connections: ['m_soleil', 'm_ateliers', 'm_constantine'],
     schedule: { firstDeparture: '05:26', lastDeparture: '23:26', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -153,47 +153,47 @@ export const STATIONS: Station[] = [
     lat: 36.7280,
     lng: 3.1360,
     lines: ['M1'],
-    connections: ['m_ateliers', 'm_harrach_gare', 'bp_harrach_centre'],
+    connections: ['m_ateliers', 'm_harrach_gare', 'bp_harrach_centre', 'b_harrach'],
     schedule: { firstDeparture: '05:31', lastDeparture: '23:31', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
   {
     id: 'm_harrach_gare',
-    name: 'El Harrach Gare',
-    nameAr: 'الحراش محطة القطار',
+    name: 'El Harrach Gare (Métro)',
+    nameAr: 'الحراش محطة القطار (مترو)',
     type: 'metro',
     lat: 36.7225,
     lng: 3.1415,
-    lines: ['M1', 'Train Est'],
+    lines: ['M1'],
     connections: ['m_harrach_centre', 't_harrach'],
     schedule: { firstDeparture: '05:34', lastDeparture: '23:34', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
   {
     id: 'm_constantine',
-    name: 'Gué de Constantine',
-    nameAr: 'جسر قسنطينة',
+    name: 'Gué de Constantine (Métro)',
+    nameAr: 'جسر قسنطينة (مترو)',
     type: 'metro',
     lat: 36.7080,
     lng: 3.1280,
-    lines: ['M1 (Branch A)'],
-    connections: ['m_badr', 'm_nadja', 't_gue_de_constantine'],
+    lines: ['M1-Branche Aïn Naâdja'],
+    connections: ['m_badr', 'm_nadja', 't_gue_de_constantine', 'bp_baraki'],
     schedule: { firstDeparture: '05:29', lastDeparture: '23:29', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
     id: 'm_nadja',
-    name: 'Aïn Naâdja',
-    nameAr: 'عين النعجة',
+    name: 'Aïn Naâdja (Métro)',
+    nameAr: 'عين النعجة (مترو)',
     type: 'metro',
     lat: 36.7020,
     lng: 3.1180,
-    lines: ['M1 (Branch A)'],
-    connections: ['m_badr', 'm_constantine'],
+    lines: ['M1-Branche Aïn Naâdja'],
+    connections: ['m_constantine', 't_ain_nadja_train'],
     schedule: { firstDeparture: '05:32', lastDeparture: '23:32', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
 
-  // --- TRAMWAY LINES (T1) ---
+  // --- TRAMWAY LINES (T1 - 25 COMPLETE STATIONS) ---
   {
     id: 'tr_ruisseau',
-    name: 'Ruisseau (Tram)',
+    name: 'Ruisseau (Tramway)',
     nameAr: 'الرويسو (ترامواي)',
     type: 'tram',
     lat: 36.7425,
@@ -204,7 +204,7 @@ export const STATIONS: Station[] = [
   },
   {
     id: 'tr_les_fusilles',
-    name: 'Les Fusillés (Tram)',
+    name: 'Les Fusillés (Tramway)',
     nameAr: 'العناصر (ترامواي)',
     type: 'tram',
     lat: 36.7420,
@@ -259,7 +259,7 @@ export const STATIONS: Station[] = [
   },
   {
     id: 'tr_caroubier',
-    name: 'Caroubier (Tram)',
+    name: 'Caroubier (Tramway)',
     nameAr: 'الخروبة (ترامواي)',
     type: 'tram',
     lat: 36.7360,
@@ -337,13 +337,24 @@ export const STATIONS: Station[] = [
   {
     id: 'tr_usthb',
     name: 'Université de Bab Ezzouar (USTHB)',
-    nameAr: 'جامعة باب الزوار',
+    nameAr: 'جامعة باب الزوار (USTHB)',
     type: 'tram',
     lat: 36.7190,
     lng: 3.1810,
     lines: ['Tram T1'],
-    connections: ['tr_bab_ezzouar_pont', 'tr_centre_commercial', 'bp_bab_ezzouar_fac'],
+    connections: ['tr_bab_ezzouar_pont', 'tr_cite_8mai', 'bp_bab_ezzouar_fac'],
     schedule: { firstDeparture: '06:06', lastDeparture: '23:51', frequencyPeak: 6, frequencyOffPeak: 12 }
+  },
+  {
+    id: 'tr_cite_8mai',
+    name: 'Cité 8 Mai 1945',
+    nameAr: 'حي 8 ماي 1945',
+    type: 'tram',
+    lat: 36.7140,
+    lng: 3.1870,
+    lines: ['Tram T1'],
+    connections: ['tr_usthb', 'tr_centre_commercial'],
+    schedule: { firstDeparture: '06:08', lastDeparture: '23:53', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
     id: 'tr_centre_commercial',
@@ -353,13 +364,13 @@ export const STATIONS: Station[] = [
     lat: 36.7120,
     lng: 3.1950,
     lines: ['Tram T1'],
-    connections: ['tr_usthb', 'tr_cite_u', 'bp_bab_ezzouar_centre'],
+    connections: ['tr_cite_8mai', 'tr_cite_u', 'bp_bab_ezzouar_centre'],
     schedule: { firstDeparture: '06:10', lastDeparture: '23:55', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
     id: 'tr_cite_u',
-    name: 'Cité Universitaire',
-    nameAr: 'الحي الجامعي',
+    name: 'Cité Universitaire CUB2',
+    nameAr: 'الحي الجامعي CUB2',
     type: 'tram',
     lat: 36.7150,
     lng: 3.2050,
@@ -369,25 +380,58 @@ export const STATIONS: Station[] = [
   },
   {
     id: 'tr_smail_yefsah',
-    name: 'Bab Ezzouar - Smaïl Yefsah',
-    nameAr: 'باب الزوار - إسماعيل يفصح',
+    name: 'Smaïl Yefsah',
+    nameAr: 'إسماعيل يفصح',
     type: 'tram',
     lat: 36.7180,
     lng: 3.2150,
     lines: ['Tram T1'],
-    connections: ['tr_cite_u', 'tr_bordj_kiffan'],
+    connections: ['tr_cite_u', 'tr_cite_206'],
     schedule: { firstDeparture: '06:16', lastDeparture: '00:01', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
+    id: 'tr_cite_206',
+    name: 'Cité 206 Logements',
+    nameAr: 'حي 206 مسكن',
+    type: 'tram',
+    lat: 36.7280,
+    lng: 3.2250,
+    lines: ['Tram T1'],
+    connections: ['tr_smail_yefsah', 'tr_bordj_kiffan'],
+    schedule: { firstDeparture: '06:19', lastDeparture: '00:04', frequencyPeak: 6, frequencyOffPeak: 12 }
+  },
+  {
     id: 'tr_bordj_kiffan',
-    name: 'Bordj El Kiffan',
-    nameAr: 'برج الكيفان',
+    name: 'Bordj El Kiffan Centre',
+    nameAr: 'برج الكيفان وسط',
     type: 'tram',
     lat: 36.7490,
     lng: 3.2350,
     lines: ['Tram T1'],
-    connections: ['tr_smail_yefsah', 'tr_ben_mred'],
+    connections: ['tr_cite_206', 'tr_mouhous'],
     schedule: { firstDeparture: '06:22', lastDeparture: '00:07', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'tr_mouhous',
+    name: 'Mouhous',
+    nameAr: 'موهوس',
+    type: 'tram',
+    lat: 36.7520,
+    lng: 3.2420,
+    lines: ['Tram T1'],
+    connections: ['tr_bordj_kiffan', 'tr_mimouni'],
+    schedule: { firstDeparture: '06:24', lastDeparture: '00:09', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'tr_mimouni',
+    name: 'Mimouni Hamoud',
+    nameAr: 'ميموني حمود',
+    type: 'tram',
+    lat: 36.7550,
+    lng: 3.2480,
+    lines: ['Tram T1'],
+    connections: ['tr_mouhous', 'tr_ben_mred'],
+    schedule: { firstDeparture: '06:26', lastDeparture: '00:11', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
     id: 'tr_ben_mred',
@@ -397,8 +441,19 @@ export const STATIONS: Station[] = [
     lat: 36.7580,
     lng: 3.2550,
     lines: ['Tram T1'],
-    connections: ['tr_bordj_kiffan', 'tr_dergana'],
-    schedule: { firstDeparture: '06:27', lastDeparture: '00:12', frequencyPeak: 8, frequencyOffPeak: 15 }
+    connections: ['tr_mimouni', 'tr_zerhouni'],
+    schedule: { firstDeparture: '06:28', lastDeparture: '00:13', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'tr_zerhouni',
+    name: 'Zerhouni Mokhtar',
+    nameAr: 'زرهوني مختار',
+    type: 'tram',
+    lat: 36.7650,
+    lng: 3.2650,
+    lines: ['Tram T1'],
+    connections: ['tr_ben_mred', 'tr_dergana'],
+    schedule: { firstDeparture: '06:30', lastDeparture: '00:15', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
     id: 'tr_dergana',
@@ -408,30 +463,30 @@ export const STATIONS: Station[] = [
     lat: 36.7720,
     lng: 3.2750,
     lines: ['Tram T1'],
-    connections: ['tr_ben_mred'],
+    connections: ['tr_zerhouni'],
     schedule: { firstDeparture: '06:33', lastDeparture: '00:18', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
 
-  // --- TRAIN / BANLIEUE (SNTF RER) ---
+  // --- SNTF TRAINS ---
   {
     id: 't_alger',
-    name: 'Alger Gare Centrale',
+    name: 'Alger Gare Centrale (SNTF)',
     nameAr: 'محطة قطار الجزائر',
     type: 'train',
     lat: 36.7710,
     lng: 3.0645,
-    lines: ['RER Est', 'RER Ouest'],
+    lines: ['RER Est', 'RER Ouest', 'Navette Aéroport'],
     connections: ['t_agha', 'm_tafourah'],
     schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 15, frequencyOffPeak: 30 }
   },
   {
     id: 't_agha',
-    name: 'Agha',
-    nameAr: 'آغا',
+    name: 'Agha (Gare SNTF)',
+    nameAr: 'محطة أودان آغا',
     type: 'train',
     lat: 36.7640,
     lng: 3.0595,
-    lines: ['RER Est', 'RER Ouest'],
+    lines: ['RER Est', 'RER Ouest', 'Navette Aéroport'],
     connections: ['t_alger', 't_al_aln', 'm_tafourah', 'm_boukhalfa'],
     schedule: { firstDeparture: '05:43', lastDeparture: '21:33', frequencyPeak: 15, frequencyOffPeak: 30 }
   },
@@ -448,8 +503,8 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_hussein_dey',
-    name: 'Hussein Dey',
-    nameAr: 'حسين داي',
+    name: 'Hussein Dey (Gare SNTF)',
+    nameAr: 'حسين داي (محطة القطار)',
     type: 'train',
     lat: 36.7430,
     lng: 3.1020,
@@ -459,7 +514,7 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_caroubier',
-    name: 'Caroubier (Train)',
+    name: 'Caroubier (Gare SNTF)',
     nameAr: 'الخروبة (محطة القطار)',
     type: 'train',
     lat: 36.7380,
@@ -470,18 +525,18 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_harrach',
-    name: 'El Harrach Gare (Train)',
+    name: 'El Harrach Gare (SNTF)',
     nameAr: 'الحراش محطة القطار',
     type: 'train',
     lat: 36.7225,
     lng: 3.1415,
-    lines: ['RER Est'],
+    lines: ['RER Est', 'Navette Aéroport'],
     connections: ['t_caroubier', 't_oued_smar', 'm_harrach_gare'],
     schedule: { firstDeparture: '05:58', lastDeparture: '21:48', frequencyPeak: 15, frequencyOffPeak: 30 }
   },
   {
     id: 't_oued_smar',
-    name: 'Oued Smar',
+    name: 'Oued Smar (Gare SNTF)',
     nameAr: 'واد السمار',
     type: 'train',
     lat: 36.7175,
@@ -492,18 +547,29 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_bab_ezzouar',
-    name: 'Bab Ezzouar (Train)',
+    name: 'Bab Ezzouar (Gare SNTF)',
     nameAr: 'باب الزوار (محطة القطار)',
     type: 'train',
     lat: 36.7160,
     lng: 3.1900,
-    lines: ['RER Est'],
-    connections: ['t_oued_smar', 't_dar_el_beida'],
+    lines: ['RER Est', 'Navette Aéroport'],
+    connections: ['t_oued_smar', 't_dar_el_beida', 't_aeroport'],
     schedule: { firstDeparture: '06:03', lastDeparture: '21:53', frequencyPeak: 20, frequencyOffPeak: 40 }
   },
   {
+    id: 't_aeroport',
+    name: "Gare SNTF Aéroport d'Alger",
+    nameAr: 'محطة قطار مطار الجزائر هواري بومدين',
+    type: 'train',
+    lat: 36.6950,
+    lng: 3.2150,
+    lines: ['Navette Aéroport'],
+    connections: ['t_bab_ezzouar', 'b_aeroport'],
+    schedule: { firstDeparture: '05:00', lastDeparture: '22:30', frequencyPeak: 30, frequencyOffPeak: 60 }
+  },
+  {
     id: 't_dar_el_beida',
-    name: 'Dar El Beïda',
+    name: 'Dar El Beïda (Gare SNTF)',
     nameAr: 'الدار البيضاء',
     type: 'train',
     lat: 36.7020,
@@ -514,25 +580,47 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_rouiba',
-    name: 'Rouïba',
+    name: 'Rouïba Ville',
     nameAr: 'رويبة',
     type: 'train',
     lat: 36.7210,
     lng: 3.2850,
     lines: ['RER Est'],
-    connections: ['t_dar_el_beida', 't_reghaia'],
+    connections: ['t_dar_el_beida', 't_rouiba_zi'],
     schedule: { firstDeparture: '06:14', lastDeparture: '22:04', frequencyPeak: 20, frequencyOffPeak: 40 }
   },
   {
+    id: 't_rouiba_zi',
+    name: 'Rouïba Zone Industrielle',
+    nameAr: 'رويبة المنطقة الصناعية',
+    type: 'train',
+    lat: 36.7270,
+    lng: 3.3100,
+    lines: ['RER Est'],
+    connections: ['t_rouiba', 't_reghaia'],
+    schedule: { firstDeparture: '06:17', lastDeparture: '22:07', frequencyPeak: 20, frequencyOffPeak: 40 }
+  },
+  {
     id: 't_reghaia',
-    name: 'Réghaïa',
+    name: 'Réghaïa Ville',
     nameAr: 'رغاية',
     type: 'train',
     lat: 36.7340,
     lng: 3.3400,
     lines: ['RER Est'],
-    connections: ['t_rouiba', 't_boudouaou'],
+    connections: ['t_rouiba_zi', 't_reghaia_zi'],
     schedule: { firstDeparture: '06:21', lastDeparture: '22:11', frequencyPeak: 20, frequencyOffPeak: 40 }
+  },
+  {
+    id: 't_reghaia_zi',
+    name: 'Réghaïa Zone Industrielle',
+    nameAr: 'رغاية المنطقة الصناعية',
+    type: 'train',
+    lat: 36.7380,
+    lng: 3.3700,
+    lines: ['RER Est'],
+    connections: ['t_reghaia', 't_boudouaou'],
+    schedule: { firstDeparture: '06:24', lastDeparture: '22:14', frequencyPeak: 20, frequencyOffPeak: 40 }
   },
   {
     id: 't_boudouaou',
@@ -542,12 +630,12 @@ export const STATIONS: Station[] = [
     lat: 36.7290,
     lng: 3.4050,
     lines: ['RER Est'],
-    connections: ['t_reghaia', 't_boumerdes'],
+    connections: ['t_reghaia_zi', 't_boumerdes'],
     schedule: { firstDeparture: '06:28', lastDeparture: '22:18', frequencyPeak: 20, frequencyOffPeak: 40 }
   },
   {
     id: 't_boumerdes',
-    name: 'Boumerdès',
+    name: 'Boumerdès Gare',
     nameAr: 'بومرداس',
     type: 'train',
     lat: 36.7590,
@@ -558,7 +646,7 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_thenia',
-    name: 'Thénia',
+    name: 'Thénia Terminus',
     nameAr: 'الثنية',
     type: 'train',
     lat: 36.7250,
@@ -568,38 +656,60 @@ export const STATIONS: Station[] = [
     schedule: { firstDeparture: '06:40', lastDeparture: '22:30', frequencyPeak: 30, frequencyOffPeak: 60 }
   },
 
-  // --- TRAIN BANLIEUE OUEST / SUD-OUEST ---
+  // --- TRAIN BANLIEUE OUEST / BLIDA ---
   {
     id: 't_gue_de_constantine',
-    name: 'Gué de Constantine (Train)',
+    name: 'Gué de Constantine (Gare SNTF)',
     nameAr: 'محطة قطار جسر قسنطينة',
     type: 'train',
     lat: 36.7080,
     lng: 3.1280,
-    lines: ['RER Ouest'],
-    connections: ['t_agha', 't_birtouta', 'm_constantine'],
+    lines: ['RER Ouest', 'RER Blida'],
+    connections: ['t_agha', 't_ain_nadja_train', 't_birtouta', 'm_constantine'],
     schedule: { firstDeparture: '05:55', lastDeparture: '21:40', frequencyPeak: 25, frequencyOffPeak: 50 }
   },
   {
+    id: 't_ain_nadja_train',
+    name: 'Aïn Naâdja (Gare SNTF)',
+    nameAr: 'عين النعجة (محطة القطار)',
+    type: 'train',
+    lat: 36.7010,
+    lng: 3.1160,
+    lines: ['RER Ouest', 'RER Blida'],
+    connections: ['t_gue_de_constantine', 't_birtouta', 'm_nadja'],
+    schedule: { firstDeparture: '05:58', lastDeparture: '21:43', frequencyPeak: 25, frequencyOffPeak: 50 }
+  },
+  {
     id: 't_birtouta',
-    name: 'Birtouta',
+    name: 'Birtouta Gare Interconnexion',
     nameAr: 'بئر توتة',
     type: 'train',
     lat: 36.6430,
     lng: 3.0150,
-    lines: ['RER Ouest'],
-    connections: ['t_gue_de_constantine', 't_sidi_abdallah', 't_blida'],
+    lines: ['RER Ouest', 'RER Blida'],
+    connections: ['t_ain_nadja_train', 't_tessala', 't_boufarik', 'b_birtouta_ville'],
     schedule: { firstDeparture: '06:05', lastDeparture: '21:50', frequencyPeak: 25, frequencyOffPeak: 50 }
   },
   {
+    id: 't_tessala',
+    name: 'Tessala El Merdja',
+    nameAr: 'تسالة المرجة',
+    type: 'train',
+    lat: 36.6620,
+    lng: 2.9450,
+    lines: ['RER Ouest'],
+    connections: ['t_birtouta', 't_sidi_abdallah'],
+    schedule: { firstDeparture: '06:09', lastDeparture: '21:54', frequencyPeak: 30, frequencyOffPeak: 60 }
+  },
+  {
     id: 't_sidi_abdallah',
-    name: 'Sidi Abdallah',
+    name: 'Sidi Abdallah Ville',
     nameAr: 'سيدي عبد الله',
     type: 'train',
     lat: 36.6850,
     lng: 2.8750,
     lines: ['RER Ouest'],
-    connections: ['t_birtouta', 't_univ_sidi_abdallah'],
+    connections: ['t_tessala', 't_univ_sidi_abdallah'],
     schedule: { firstDeparture: '06:12', lastDeparture: '21:58', frequencyPeak: 30, frequencyOffPeak: 60 }
   },
   {
@@ -615,39 +725,195 @@ export const STATIONS: Station[] = [
   },
   {
     id: 't_zeralda',
-    name: 'Zéralda',
+    name: 'Zéralda Terminus',
     nameAr: 'زرالدة',
     type: 'train',
     lat: 36.7120,
     lng: 2.8450,
     lines: ['RER Ouest'],
-    connections: ['t_univ_sidi_abdallah'],
+    connections: ['t_univ_sidi_abdallah', 'b_zeralda'],
     schedule: { firstDeparture: '06:20', lastDeparture: '22:06', frequencyPeak: 30, frequencyOffPeak: 60 }
   },
   {
+    id: 't_boufarik',
+    name: 'Boufarik Gare',
+    nameAr: 'بوفاريك',
+    type: 'train',
+    lat: 36.5750,
+    lng: 2.9120,
+    lines: ['RER Blida'],
+    connections: ['t_birtouta', 't_beni_mered'],
+    schedule: { firstDeparture: '06:10', lastDeparture: '22:00', frequencyPeak: 20, frequencyOffPeak: 40 }
+  },
+  {
+    id: 't_beni_mered',
+    name: 'Beni Mered',
+    nameAr: 'بني مراد',
+    type: 'train',
+    lat: 36.5210,
+    lng: 2.8620,
+    lines: ['RER Blida'],
+    connections: ['t_boufarik', 't_blida'],
+    schedule: { firstDeparture: '06:15', lastDeparture: '22:05', frequencyPeak: 20, frequencyOffPeak: 40 }
+  },
+  {
     id: 't_blida',
-    name: 'Blida Gare',
+    name: 'Blida Gare Centrale',
     nameAr: 'محطة قطار البليدة',
     type: 'train',
     lat: 36.4800,
     lng: 2.8310,
-    lines: ['RER Ouest'],
-    connections: ['t_birtouta', 't_el_affroun'],
-    schedule: { firstDeparture: '06:10', lastDeparture: '22:10', frequencyPeak: 20, frequencyOffPeak: 40 }
+    lines: ['RER Blida'],
+    connections: ['t_beni_mered', 't_chiffa'],
+    schedule: { firstDeparture: '06:20', lastDeparture: '22:10', frequencyPeak: 20, frequencyOffPeak: 40 }
+  },
+  {
+    id: 't_chiffa',
+    name: 'La Chiffa',
+    nameAr: 'الشفة',
+    type: 'train',
+    lat: 36.4610,
+    lng: 2.7410,
+    lines: ['RER Blida'],
+    connections: ['t_blida', 't_el_affroun'],
+    schedule: { firstDeparture: '06:25', lastDeparture: '22:15', frequencyPeak: 25, frequencyOffPeak: 50 }
   },
   {
     id: 't_el_affroun',
-    name: 'El Affroun',
+    name: 'El Affroun Terminus',
     nameAr: 'العفرون',
     type: 'train',
     lat: 36.4670,
     lng: 2.6250,
-    lines: ['RER Ouest'],
-    connections: ['t_blida'],
-    schedule: { firstDeparture: '06:25', lastDeparture: '22:25', frequencyPeak: 20, frequencyOffPeak: 40 }
+    lines: ['RER Blida'],
+    connections: ['t_chiffa'],
+    schedule: { firstDeparture: '06:30', lastDeparture: '22:25', frequencyPeak: 25, frequencyOffPeak: 50 }
   },
 
-  // --- BUS HUBS (ETUSA) ---
+  // --- TÉLÉPHÉRIQUES & TÉLÉCABINES D'ALGER ---
+  {
+    id: 'tel_jardin',
+    name: "Téléphérique Jardin d'Essai",
+    nameAr: 'تلفريك حديقة التجارب',
+    type: 'telepherique',
+    lat: 36.7465,
+    lng: 3.0720,
+    lines: ['Téléphérique Mémorial'],
+    connections: ['m_jardin', 'tel_memorial'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 2, frequencyOffPeak: 5 }
+  },
+  {
+    id: 'tel_memorial',
+    name: 'Téléphérique Mémorial du Martyr (Maqam)',
+    nameAr: 'تلفريك مقام الشهيد',
+    type: 'telepherique',
+    lat: 36.7435,
+    lng: 3.0700,
+    lines: ['Téléphérique Mémorial'],
+    connections: ['tel_jardin'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 2, frequencyOffPeak: 5 }
+  },
+  {
+    id: 'tel_mai',
+    name: 'Téléphérique 1er Mai',
+    nameAr: 'تلفريك أول ماي',
+    type: 'telepherique',
+    lat: 36.7595,
+    lng: 3.0525,
+    lines: ['Téléphérique Palais du Peuple'],
+    connections: ['m_mai', 'b_mai', 'tel_palais'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 2, frequencyOffPeak: 5 }
+  },
+  {
+    id: 'tel_palais',
+    name: 'Téléphérique Palais du Peuple',
+    nameAr: 'تلفريك قصر الشعب',
+    type: 'telepherique',
+    lat: 36.7625,
+    lng: 3.0510,
+    lines: ['Téléphérique Palais du Peuple'],
+    connections: ['tel_mai'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 2, frequencyOffPeak: 5 }
+  },
+  {
+    id: 'tel_bologhine',
+    name: 'Téléphérique Bologhine',
+    nameAr: 'تلفريك بولوغين',
+    type: 'telepherique',
+    lat: 36.7920,
+    lng: 3.0480,
+    lines: ['Téléphérique Notre Dame d\'Afrique'],
+    connections: ['tel_nd_afrique'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 3, frequencyOffPeak: 6 }
+  },
+  {
+    id: 'tel_nd_afrique',
+    name: 'Téléphérique Notre Dame d\'Afrique',
+    nameAr: 'تلفريك سيدة أفريقيا',
+    type: 'telepherique',
+    lat: 36.7960,
+    lng: 3.0420,
+    lines: ['Téléphérique Notre Dame d\'Afrique'],
+    connections: ['tel_bologhine'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 3, frequencyOffPeak: 6 }
+  },
+  {
+    id: 'tel_triolet',
+    name: 'Télécabine Triolet (Bab El Oued)',
+    nameAr: 'تلفريك تريولي باب الواد',
+    type: 'telepherique',
+    lat: 36.7845,
+    lng: 3.0445,
+    lines: ['Télécabine Oued Koriche - Bouzaréah'],
+    connections: ['b_bab_el_oued', 'bp_triolet', 'tel_frais_vallon'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:30', frequencyPeak: 2, frequencyOffPeak: 4 }
+  },
+  {
+    id: 'tel_frais_vallon',
+    name: 'Télécabine Frais Vallon',
+    nameAr: 'تلفريك واد قريش (فري فالون)',
+    type: 'telepherique',
+    lat: 36.7865,
+    lng: 3.0180,
+    lines: ['Télécabine Oued Koriche - Bouzaréah'],
+    connections: ['tel_triolet', 'tel_bouzareah'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:30', frequencyPeak: 2, frequencyOffPeak: 4 }
+  },
+  {
+    id: 'tel_bouzareah',
+    name: 'Télécabine Bouzaréah Ville',
+    nameAr: 'تلفريك بوزريعة',
+    type: 'telepherique',
+    lat: 36.7885,
+    lng: 2.9915,
+    lines: ['Télécabine Oued Koriche - Bouzaréah'],
+    connections: ['tel_frais_vallon', 'b_bouzareah'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:30', frequencyPeak: 2, frequencyOffPeak: 4 }
+  },
+  {
+    id: 'tel_triolet_z',
+    name: 'Télécabine Triolet (Branche Z\'ghara)',
+    nameAr: 'تلفريك تريولي زغارة',
+    type: 'telepherique',
+    lat: 36.7845,
+    lng: 3.0445,
+    lines: ['Télécabine Bab El Oued - Z\'ghara'],
+    connections: ['tel_triolet', 'tel_zghara'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 3, frequencyOffPeak: 6 }
+  },
+  {
+    id: 'tel_zghara',
+    name: 'Télécabine Z\'ghara',
+    nameAr: 'تلفريك زغارة',
+    type: 'telepherique',
+    lat: 36.7890,
+    lng: 3.0390,
+    lines: ['Télécabine Bab El Oued - Z\'ghara'],
+    connections: ['tel_triolet_z'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '19:00', frequencyPeak: 3, frequencyOffPeak: 6 }
+  },
+
+  // --- ETUSA BUS HUBS & STATIONS ---
   {
     id: 'b_mai',
     name: 'Station ETUSA 1er Mai',
@@ -655,9 +921,9 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7592,
     lng: 3.0520,
-    lines: ['Bus 14', 'Bus 16', 'Bus 31', 'Bus 48'],
-    connections: ['m_mai', 'b_audin', 'bp_mai'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 10, frequencyOffPeak: 20 }
+    lines: ['Bus 02', 'Bus 07', 'Bus 11', 'Bus 14', 'Bus 31', 'Bus 32', 'Bus 34', 'Bus 36', 'Bus 43', 'Bus 48', 'Bus 88', 'Bus 89', 'Bus 98', 'Bus 99', 'Bus 107', 'Bus 631'],
+    connections: ['m_mai', 'b_audin', 'bp_mai', 'tel_mai'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
     id: 'b_audin',
@@ -666,20 +932,31 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7680,
     lng: 3.0560,
-    lines: ['Bus 31', 'Bus 32', 'Bus 54'],
-    connections: ['b_mai', 'b_tafourah', 'bp_audin'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 10, frequencyOffPeak: 20 }
+    lines: ['Bus 01', 'Bus 02', 'Bus 31', 'Bus 54'],
+    connections: ['b_mai', 'b_tafourah', 'bp_audin', 'b_martyrs', 'b_telemly'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
     id: 'b_tafourah',
-    name: 'Station ETUSA Tafourah',
+    name: 'Station ETUSA Tafourah (Grande Poste)',
     nameAr: 'محطة تافورة (إيتوزا)',
     type: 'bus',
     lat: 36.7685,
     lng: 3.0580,
-    lines: ['Bus 14', 'Bus 16', 'Bus 67', 'Bus 113'],
-    connections: ['b_audin', 'm_tafourah'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 10, frequencyOffPeak: 20 }
+    lines: ['Bus 12', 'Bus 14', 'Bus 16', 'Bus 31', 'Bus 65', 'Bus 67', 'Bus 99', 'Bus 113'],
+    connections: ['b_audin', 'm_tafourah', 't_agha'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'b_martyrs',
+    name: 'Station ETUSA Place des Martyrs',
+    nameAr: 'محطة ساحة الشهداء (إيتوزا)',
+    type: 'bus',
+    lat: 36.7801,
+    lng: 3.0601,
+    lines: ['Bus 01', 'Bus 02', 'Bus 08', 'Bus 10', 'Bus 12', 'Bus 14', 'Bus 15', 'Bus 16', 'Bus 31', 'Bus 100', 'Bus 101'],
+    connections: ['m_martyrs', 'bp_martyrs', 'b_bab_el_oued'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
     id: 'b_ben_aknoun',
@@ -688,9 +965,9 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7530,
     lng: 3.0030,
-    lines: ['Bus 32', 'Bus 48', 'Bus 100'],
-    connections: ['b_chevalley', 'bp_ben_aknoun_gare', 'b_hydra'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 12, frequencyOffPeak: 25 }
+    lines: ['Bus 11', 'Bus 32', 'Bus 48', 'Bus 54', 'Bus 72', 'Bus 100', 'Bus 111', 'Bus 731'],
+    connections: ['b_chevalley', 'bp_ben_aknoun_gare', 'b_hydra', 'b_dely_brahim'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 10, frequencyOffPeak: 20 }
   },
   {
     id: 'b_chevalley',
@@ -699,20 +976,20 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7680,
     lng: 2.9980,
-    lines: ['Bus 100', 'Bus 113'],
-    connections: ['b_ben_aknoun', 'bp_chevalley', 'b_bouzareah'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 12, frequencyOffPeak: 25 }
+    lines: ['Bus 10', 'Bus 34', 'Bus 100', 'Bus 113'],
+    connections: ['b_ben_aknoun', 'bp_chevalley', 'b_bouzareah', 'b_el_biar'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 10, frequencyOffPeak: 20 }
   },
   {
     id: 'b_bab_el_oued',
-    name: 'Station ETUSA Bab El Oued',
+    name: 'Station ETUSA Bab El Oued (Triolet)',
     nameAr: 'محطة باب الواد (إيتوزا)',
     type: 'bus',
     lat: 36.7850,
     lng: 3.0500,
-    lines: ['Bus 31', 'Bus 100'],
-    connections: ['m_martyrs', 'bp_triolet'],
-    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 12, frequencyOffPeak: 25 }
+    lines: ['Bus 08', 'Bus 10', 'Bus 15', 'Bus 16', 'Bus 31', 'Bus 43', 'Bus 100'],
+    connections: ['m_martyrs', 'b_martyrs', 'bp_triolet', 'tel_triolet'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:00', frequencyPeak: 10, frequencyOffPeak: 20 }
   },
   {
     id: 'b_hydra',
@@ -721,9 +998,9 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7420,
     lng: 3.0250,
-    lines: ['Bus 48', 'Bus 67'],
-    connections: ['b_ben_aknoun'],
-    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+    lines: ['Bus 32', 'Bus 48', 'Bus 65', 'Bus 67'],
+    connections: ['b_ben_aknoun', 'b_birmandreis'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
   },
   {
     id: 'b_bouzareah',
@@ -732,12 +1009,256 @@ export const STATIONS: Station[] = [
     type: 'bus',
     lat: 36.7880,
     lng: 2.9920,
-    lines: ['Bus 67'],
-    connections: ['b_chevalley'],
-    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+    lines: ['Bus 10', 'Bus 15', 'Bus 67'],
+    connections: ['b_chevalley', 'tel_bouzareah'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_el_biar',
+    name: 'Station ETUSA El Biar Place Kennedy',
+    nameAr: 'محطة الأبيار (إيتوزا)',
+    type: 'bus',
+    lat: 36.7680,
+    lng: 3.0310,
+    lines: ['Bus 11', 'Bus 34', 'Bus 54'],
+    connections: ['b_chevalley', 'b_ben_aknoun'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_kouba',
+    name: 'Station ETUSA Kouba Centre',
+    nameAr: 'محطة القبة (إيتوزا)',
+    type: 'bus',
+    lat: 36.7290,
+    lng: 3.0850,
+    lines: ['Bus 36', 'Bus 89', 'Bus 631'],
+    connections: ['bp_kouba_eglise', 'b_bachdjerrah'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_birmandreis',
+    name: 'Station ETUSA Bir Mourad Raïs',
+    nameAr: 'محطة بئر مراد رايس (إيتوزا)',
+    type: 'bus',
+    lat: 36.7320,
+    lng: 3.0520,
+    lines: ['Bus 14', 'Bus 65'],
+    connections: ['b_hydra', 'b_mai', 'b_birkhadem'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_bachdjerrah',
+    name: 'Station ETUSA Bachdjerrah',
+    nameAr: 'محطة باش جراح (إيتوزا)',
+    type: 'bus',
+    lat: 36.7180,
+    lng: 3.1050,
+    lines: ['Bus 88', 'Bus 89'],
+    connections: ['m_badr', 'b_harrach'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_harrach',
+    name: 'Station ETUSA El Harrach',
+    nameAr: 'محطة الحراش (إيتوزا)',
+    type: 'bus',
+    lat: 36.7280,
+    lng: 3.1360,
+    lines: ['Bus 88', 'Bus 98'],
+    connections: ['m_harrach_centre', 'bp_harrach_centre'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_aeroport',
+    name: "Station ETUSA Aéroport d'Alger",
+    nameAr: 'محطة حافلات مطار الجزائر',
+    type: 'bus',
+    lat: 36.6950,
+    lng: 3.2150,
+    lines: ['Bus 99'],
+    connections: ['t_aeroport'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '22:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_salembier',
+    name: 'Station ETUSA El Madania (Salembier)',
+    nameAr: 'محطة المدنية (إيتوزا)',
+    type: 'bus',
+    lat: 36.7450,
+    lng: 3.0650,
+    lines: ['Bus 01', 'Bus 07'],
+    connections: ['tel_memorial'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_ain_benian',
+    name: 'Station ETUSA Aïn Benian',
+    nameAr: 'محطة عين بنيان (إيتوزا)',
+    type: 'bus',
+    lat: 36.8020,
+    lng: 2.9210,
+    lines: ['Bus 12', 'Bus 101', 'Bus 113'],
+    connections: ['bp_cheraga', 'b_staoueli'],
+    schedule: { firstDeparture: '05:40', lastDeparture: '21:00', frequencyPeak: 15, frequencyOffPeak: 30 }
   },
 
-  // --- PRIVATE BUS STATIONS (Bus Privés - icon is cyan-500) ---
+  // --- NEW STATIONS EXTENSIONS ---
+  {
+    id: 'b_staoueli',
+    name: 'Station ETUSA Staouéli Centre',
+    nameAr: 'محطة سطاوالي (إيتوزا)',
+    type: 'bus',
+    lat: 36.7580,
+    lng: 2.8900,
+    lines: ['Bus 72', 'Bus 111'],
+    connections: ['b_palm_beach', 'b_ain_benian'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:00', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_palm_beach',
+    name: 'Station ETUSA Palm Beach / Sidi Fredj',
+    nameAr: 'محطة باالم بيتش / سيدي فرج',
+    type: 'bus',
+    lat: 36.7620,
+    lng: 2.8550,
+    lines: ['Bus 111'],
+    connections: ['b_staoueli', 'b_zeralda'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_cheraga',
+    name: 'Station ETUSA Chéraga Centre',
+    nameAr: 'محطة الشراقة (إيتوزا)',
+    type: 'bus',
+    lat: 36.7710,
+    lng: 2.9580,
+    lines: ['Bus 11', 'Bus 72'],
+    connections: ['b_dely_brahim', 'b_staoueli', 'bp_cheraga'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_dely_brahim',
+    name: 'Station ETUSA Dely Ibrahim',
+    nameAr: 'محطة دالي براهيم (إيتوزا)',
+    type: 'bus',
+    lat: 36.7520,
+    lng: 2.9800,
+    lines: ['Bus 72'],
+    connections: ['b_ben_aknoun', 'b_cheraga', 'bp_dely_brahim'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_zeralda',
+    name: 'Station ETUSA Zéralda Ville',
+    nameAr: 'محطة زرالدة (إيتوزا)',
+    type: 'bus',
+    lat: 36.7120,
+    lng: 2.8450,
+    lines: ['Bus 101'],
+    connections: ['t_zeralda', 'b_palm_beach'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:00', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_douera',
+    name: 'Station ETUSA Douera Centre',
+    nameAr: 'محطة دويرة (إيتوزا)',
+    type: 'bus',
+    lat: 36.6710,
+    lng: 2.9450,
+    lines: ['Bus 731'],
+    connections: ['b_baba_hassen'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_baba_hassen',
+    name: 'Station ETUSA Baba Hassen',
+    nameAr: 'محطة بابا حسن (إيتوزا)',
+    type: 'bus',
+    lat: 36.6980,
+    lng: 2.9750,
+    lines: ['Bus 731'],
+    connections: ['b_douera', 'b_ben_aknoun'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_saoula',
+    name: 'Station ETUSA Saoula',
+    nameAr: 'محطة السحاولة (إيتوزا)',
+    type: 'bus',
+    lat: 36.6850,
+    lng: 3.0250,
+    lines: ['Bus 107'],
+    connections: ['b_birkhadem'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_birkhadem',
+    name: 'Station ETUSA Birkhadem',
+    nameAr: 'محطة بئر خادم (إيتوزا)',
+    type: 'bus',
+    lat: 36.7150,
+    lng: 3.0510,
+    lines: ['Bus 107'],
+    connections: ['b_birmandreis', 'b_saoula'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_birtouta_ville',
+    name: 'Station ETUSA Birtouta Centre',
+    nameAr: 'محطة بئر توتة وسط (إيتوزا)',
+    type: 'bus',
+    lat: 36.6430,
+    lng: 3.0150,
+    lines: ['Bus 107'],
+    connections: ['t_birtouta'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_ain_taya',
+    name: 'Station ETUSA Aïn Taya',
+    nameAr: 'محطة عين طاية (إيتوزا)',
+    type: 'bus',
+    lat: 36.7930,
+    lng: 3.2850,
+    lines: ['Bus 98'],
+    connections: ['b_bordj_bahri'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_bordj_bahri',
+    name: 'Station ETUSA Bordj El Bahri',
+    nameAr: 'محطة برج البحري (إيتوزا)',
+    type: 'bus',
+    lat: 36.7900,
+    lng: 3.2500,
+    lines: ['Bus 98'],
+    connections: ['b_ain_taya', 'tr_dergana'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 15, frequencyOffPeak: 30 }
+  },
+  {
+    id: 'b_baraki',
+    name: 'Station ETUSA Baraki Centre',
+    nameAr: 'محطة براقي (إيتوزا)',
+    type: 'bus',
+    lat: 36.6680,
+    lng: 3.0950,
+    lines: ['Bus 88'],
+    connections: ['m_constantine', 'bp_baraki'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:00', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+  {
+    id: 'b_telemly',
+    name: 'Station ETUSA Telemly',
+    nameAr: 'محطة تيليملي (إيتوزا)',
+    type: 'bus',
+    lat: 36.7650,
+    lng: 3.0520,
+    lines: ['Bus 02'],
+    connections: ['b_audin'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '21:30', frequencyPeak: 12, frequencyOffPeak: 25 }
+  },
+
+  // --- PRIVATE BUS STATIONS (Bus Privés) ---
   {
     id: 'bp_bab_ezzouar_fac',
     name: 'Bab Ezzouar - Fac (Privé)',
@@ -745,7 +1266,7 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7200,
     lng: 3.1830,
-    lines: ['P1'],
+    lines: ['P1', 'P7'],
     connections: ['tr_usthb'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
@@ -778,11 +1299,10 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7290,
     lng: 3.1370,
-    lines: ['P1'],
-    connections: ['m_harrach_centre'],
+    lines: ['P1', 'P5'],
+    connections: ['m_harrach_centre', 'b_harrach'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
-  // Private Line 2
   {
     id: 'bp_ben_aknoun_gare',
     name: 'Ben Aknoun Gare Routière (Privé)',
@@ -790,7 +1310,7 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7540,
     lng: 3.0040,
-    lines: ['P2'],
+    lines: ['P2', 'P4', 'P6', 'P10'],
     connections: ['b_ben_aknoun'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
@@ -801,8 +1321,8 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7520,
     lng: 2.9800,
-    lines: ['P2'],
-    connections: [],
+    lines: ['P2', 'P4', 'P6', 'P10'],
+    connections: ['b_dely_brahim'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
   {
@@ -824,7 +1344,7 @@ export const STATIONS: Station[] = [
     lat: 36.7840,
     lng: 3.0450,
     lines: ['P2'],
-    connections: ['b_bab_el_oued'],
+    connections: ['b_bab_el_oued', 'tel_triolet'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
   {
@@ -835,10 +1355,9 @@ export const STATIONS: Station[] = [
     lat: 36.7800,
     lng: 3.0600,
     lines: ['P2'],
-    connections: ['m_martyrs'],
+    connections: ['m_martyrs', 'b_martyrs'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 5, frequencyOffPeak: 10 }
   },
-  // Private Line 3
   {
     id: 'bp_kouba_eglise',
     name: 'Kouba La Croix (Privé)',
@@ -847,7 +1366,7 @@ export const STATIONS: Station[] = [
     lat: 36.7290,
     lng: 3.0850,
     lines: ['P3'],
-    connections: [],
+    connections: ['b_kouba'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 10, frequencyOffPeak: 18 }
   },
   {
@@ -868,7 +1387,7 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7425,
     lng: 3.0825,
-    lines: ['P3'],
+    lines: ['P3', 'P11'],
     connections: ['m_ruisseau', 'tr_ruisseau'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 10, frequencyOffPeak: 18 }
   },
@@ -879,7 +1398,7 @@ export const STATIONS: Station[] = [
     type: 'bus_priv',
     lat: 36.7592,
     lng: 3.0520,
-    lines: ['P3'],
+    lines: ['P3', 'P6', 'P9'],
     connections: ['m_mai', 'b_mai'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 10, frequencyOffPeak: 18 }
   },
@@ -893,13 +1412,36 @@ export const STATIONS: Station[] = [
     lines: ['P3'],
     connections: ['b_audin'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 10, frequencyOffPeak: 18 }
+  },
+  {
+    id: 'bp_cheraga',
+    name: 'Chéraga Centre (Privé)',
+    nameAr: 'الشراقة (خاص)',
+    type: 'bus_priv',
+    lat: 36.7710,
+    lng: 2.9580,
+    lines: ['P4', 'P6', 'P10'],
+    connections: ['b_cheraga'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'bp_baraki',
+    name: 'Baraki Centre (Privé)',
+    nameAr: 'براقي (خاص)',
+    type: 'bus_priv',
+    lat: 36.6680,
+    lng: 3.0950,
+    lines: ['P5', 'P11'],
+    connections: ['m_constantine', 'b_baraki'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
   }
 ];
 
 export const LINES: LineData[] = [
+  // --- METRO D'ALGER ---
   {
     id: 'metro_m1',
-    name: 'Métro Ligne 1',
+    name: 'Métro Ligne 1 (Martyrs - El Harrach Gare)',
     type: 'metro',
     color: '#D32F2F', // Red
     stations: [
@@ -912,80 +1454,313 @@ export const LINES: LineData[] = [
     id: 'metro_m1_branch',
     name: 'Métro Branche Aïn Naâdja',
     type: 'metro',
-    color: '#C2185B', // Pinkish red
+    color: '#C2185B', // Dark Pink
     stations: ['m_badr', 'm_constantine', 'm_nadja']
   },
+
+  // --- TRAMWAY D'ALGER ---
   {
     id: 'tram_t1',
-    name: 'Tramway T1',
+    name: 'Tramway T1 (Ruisseau - Dergana Centre)',
     type: 'tram',
     color: '#1976D2', // Blue
     stations: [
       'tr_ruisseau', 'tr_les_fusilles', 'tr_maaza', 'tr_mosquee', 'tr_hamadache',
       'tr_thaalibia', 'tr_caroubier', 'tr_glaciere', 'tr_pont_est', 'tr_belfort',
-      'tr_badi', 'tr_juillet', 'tr_bab_ezzouar_pont', 'tr_usthb', 'tr_centre_commercial',
-      'tr_cite_u', 'tr_smail_yefsah', 'tr_bordj_kiffan', 'tr_ben_mred', 'tr_dergana'
+      'tr_badi', 'tr_juillet', 'tr_bab_ezzouar_pont', 'tr_usthb', 'tr_cite_8mai',
+      'tr_centre_commercial', 'tr_cite_u', 'tr_smail_yefsah', 'tr_cite_206',
+      'tr_bordj_kiffan', 'tr_mouhous', 'tr_mimouni', 'tr_ben_mred', 'tr_zerhouni', 'tr_dergana'
     ]
   },
+
+  // --- TRAINS SNTF RER ---
   {
     id: 'train_rer_est',
-    name: 'Train de Banlieue (Est: Alger - Boumerdès - Thénia)',
+    name: 'RER Banlieue Est (Alger Gare - Boumerdès - Thénia)',
     type: 'train',
     color: '#388E3C', // Green
     stations: [
       't_alger', 't_agha', 't_al_aln', 't_hussein_dey', 't_caroubier',
       't_harrach', 't_oued_smar', 't_bab_ezzouar', 't_dar_el_beida',
-      't_rouiba', 't_reghaia', 't_boudouaou', 't_boumerdes', 't_thenia'
+      't_rouiba', 't_rouiba_zi', 't_reghaia', 't_reghaia_zi', 't_boudouaou',
+      't_boumerdes', 't_thenia'
     ]
   },
   {
+    id: 'train_rer_aeroport',
+    name: "RER Express Navette Aéroport (Alger - Aéroport Houari Boumediene)",
+    type: 'train',
+    color: '#059669', // Emerald
+    stations: ['t_alger', 't_agha', 't_harrach', 't_bab_ezzouar', 't_aeroport']
+  },
+  {
     id: 'train_rer_ouest',
-    name: 'Train de Banlieue (Ouest/Sud-Ouest: Alger - Blida - El Affroun / Zéralda)',
+    name: 'RER Banlieue Ouest (Alger - Zéralda)',
     type: 'train',
     color: '#00796B', // Teal
     stations: [
-      't_alger', 't_agha', 't_gue_de_constantine', 't_birtouta',
-      't_sidi_abdallah', 't_univ_sidi_abdallah', 't_zeralda'
+      't_alger', 't_agha', 't_gue_de_constantine', 't_ain_nadja_train',
+      't_birtouta', 't_tessala', 't_sidi_abdallah', 't_univ_sidi_abdallah', 't_zeralda'
     ]
   },
   {
     id: 'train_rer_blida',
-    name: 'Train de Banlieue (Sud-Ouest: Alger - Blida - El Affroun)',
+    name: 'RER Banlieue Sud-Ouest (Alger - Blida - El Affroun)',
     type: 'train',
-    color: '#0288D1', // Cyan-blue train
+    color: '#0288D1', // Cyan Blue
     stations: [
-      't_alger', 't_agha', 't_gue_de_constantine', 't_birtouta',
-      't_blida', 't_el_affroun'
+      't_alger', 't_agha', 't_gue_de_constantine', 't_ain_nadja_train',
+      't_birtouta', 't_boufarik', 't_beni_mered', 't_blida', 't_chiffa', 't_el_affroun'
     ]
   },
-  // --- ETUSA BUS LINES (Fully detailed and complete) ---
+
+  // --- TÉLÉPHÉRIQUES & TÉLÉCABINES ---
+  {
+    id: 'tel_line_memorial',
+    name: 'Téléphérique du Mémorial (Jardin d\'Essai - Maqam)',
+    type: 'telepherique',
+    color: '#8B5CF6', // Purple
+    stations: ['tel_jardin', 'tel_memorial']
+  },
+  {
+    id: 'tel_line_palais',
+    name: 'Téléphérique du Palais du Peuple (1er Mai - Palais)',
+    type: 'telepherique',
+    color: '#7C3AED', // Dark Purple
+    stations: ['tel_mai', 'tel_palais']
+  },
+  {
+    id: 'tel_line_nd_afrique',
+    name: 'Téléphérique Notre Dame d\'Afrique (Bologhine - Notre Dame)',
+    type: 'telepherique',
+    color: '#9333EA', // Violet
+    stations: ['tel_bologhine', 'tel_nd_afrique']
+  },
+  {
+    id: 'tel_line_bouzareah',
+    name: 'Télécabine Oued Koriche (Triolet - Frais Vallon - Bouzaréah)',
+    type: 'telepherique',
+    color: '#A855F7', // Bright Violet
+    stations: ['tel_triolet', 'tel_frais_vallon', 'tel_bouzareah']
+  },
+  {
+    id: 'tel_line_zghara',
+    name: 'Télécabine Bab El Oued (Triolet - Z\'ghara)',
+    type: 'telepherique',
+    color: '#C084FC', // Light Purple
+    stations: ['tel_triolet_z', 'tel_zghara']
+  },
+
+  // --- ETUSA BUS LINES ---
+  {
+    id: 'bus_etusa_01',
+    name: 'Ligne ETUSA 01 (Place des Martyrs - El Madania / Salembier)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_martyrs', 'b_audin', 'b_salembier']
+  },
+  {
+    id: 'bus_etusa_02',
+    name: 'Ligne ETUSA 02 (Place des Martyrs - Didouche Mourad - Telemly)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_audin', 'b_telemly']
+  },
+  {
+    id: 'bus_etusa_08',
+    name: 'Ligne ETUSA 08 (Place des Martyrs - Triolet - Notre Dame)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_martyrs', 'b_bab_el_oued']
+  },
+  {
+    id: 'bus_etusa_10',
+    name: 'Ligne ETUSA 10 (Place des Martyrs - Triolet - Bouzaréah)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_chevalley', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_11',
+    name: 'Ligne ETUSA 11 (1er Mai - El Biar - Chéraga)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_mai', 'b_el_biar', 'b_ben_aknoun', 'b_cheraga']
+  },
+  {
+    id: 'bus_etusa_12',
+    name: 'Ligne ETUSA 12 (Tafourah - Place des Martyrs - Aïn Benian)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_tafourah', 'b_martyrs', 'b_ain_benian']
+  },
+  {
+    id: 'bus_etusa_14',
+    name: 'Ligne ETUSA 14 (Place des Martyrs - 1er Mai - Birmandreis)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_martyrs', 'b_tafourah', 'b_mai', 'b_birmandreis']
+  },
+  {
+    id: 'bus_etusa_15',
+    name: 'Ligne ETUSA 15 (Place des Martyrs - Bouzaréah Fac)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_16',
+    name: 'Ligne ETUSA 16 (Tafourah - Place des Martyrs - Bab El Oued)',
+    type: 'bus',
+    color: '#FBBF24',
+    stations: ['b_tafourah', 'b_martyrs', 'b_bab_el_oued']
+  },
   {
     id: 'bus_etusa_31',
     name: 'Ligne ETUSA 31 (Bab El Oued - Maurice Audin - 1er Mai)',
     type: 'bus',
-    color: '#FFA000', // Amber
+    color: '#FFA000',
     stations: ['b_bab_el_oued', 'b_tafourah', 'b_audin', 'b_mai']
+  },
+  {
+    id: 'bus_etusa_32',
+    name: 'Ligne ETUSA 32 (1er Mai - Hydra - Ben Aknoun)',
+    type: 'bus',
+    color: '#FF8F00',
+    stations: ['b_mai', 'b_hydra', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_34',
+    name: 'Ligne ETUSA 34 (1er Mai - El Biar - Chevalley)',
+    type: 'bus',
+    color: '#E65100',
+    stations: ['b_mai', 'b_el_biar', 'b_chevalley']
+  },
+  {
+    id: 'bus_etusa_36',
+    name: 'Ligne ETUSA 36 (1er Mai - Kouba)',
+    type: 'bus',
+    color: '#F57C00',
+    stations: ['b_mai', 'b_kouba']
+  },
+  {
+    id: 'bus_etusa_43',
+    name: 'Ligne ETUSA 43 (1er Mai - Bab El Oued)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_mai', 'b_audin', 'b_bab_el_oued']
   },
   {
     id: 'bus_etusa_48',
     name: 'Ligne ETUSA 48 (1er Mai - Hydra - Ben Aknoun)',
     type: 'bus',
-    color: '#FF8F00', // Darker Amber
+    color: '#EF6C00',
     stations: ['b_mai', 'b_hydra', 'b_ben_aknoun']
   },
   {
-    id: 'bus_etusa_100',
-    name: 'Ligne ETUSA 100 (Bab El Oued - Chevalley - Ben Aknoun)',
+    id: 'bus_etusa_54',
+    name: 'Ligne ETUSA 54 (Maurice Audin - El Biar - Ben Aknoun)',
     type: 'bus',
-    color: '#F57C00', // Orange-amber
-    stations: ['b_bab_el_oued', 'b_chevalley', 'b_ben_aknoun']
+    color: '#FB8C00',
+    stations: ['b_audin', 'b_el_biar', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_65',
+    name: 'Ligne ETUSA 65 (Tafourah - Hydra - Birmandreis)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_tafourah', 'b_hydra', 'b_birmandreis']
   },
   {
     id: 'bus_etusa_67',
     name: 'Ligne ETUSA 67 (Tafourah - Hydra - Bouzaréah)',
     type: 'bus',
-    color: '#EF6C00',
+    color: '#FF9800',
     stations: ['b_tafourah', 'b_hydra', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_72',
+    name: 'Ligne ETUSA 72 (Ben Aknoun - Dely Ibrahim - Staouéli)',
+    type: 'bus',
+    color: '#E65100',
+    stations: ['b_ben_aknoun', 'b_dely_brahim', 'b_cheraga', 'b_staoueli']
+  },
+  {
+    id: 'bus_etusa_88',
+    name: 'Ligne ETUSA 88 (1er Mai - Bachdjerrah - El Harrach)',
+    type: 'bus',
+    color: '#F57F17',
+    stations: ['b_mai', 'b_bachdjerrah', 'b_harrach']
+  },
+  {
+    id: 'bus_etusa_89',
+    name: 'Ligne ETUSA 89 (1er Mai - Kouba - Bachdjerrah)',
+    type: 'bus',
+    color: '#FF8F00',
+    stations: ['b_mai', 'b_kouba', 'b_bachdjerrah']
+  },
+  {
+    id: 'bus_etusa_98',
+    name: 'Ligne ETUSA 98 (1er Mai - Bordj El Bahri - Aïn Taya)',
+    type: 'bus',
+    color: '#E65100',
+    stations: ['b_mai', 'b_harrach', 'b_bordj_bahri', 'b_ain_taya']
+  },
+  {
+    id: 'bus_etusa_99',
+    name: "Ligne ETUSA Navette Aérobus (1er Mai / Tafourah - Aéroport d'Alger)",
+    type: 'bus',
+    color: '#E65100',
+    stations: ['b_mai', 'b_tafourah', 'b_aeroport']
+  },
+  {
+    id: 'bus_etusa_100',
+    name: 'Ligne ETUSA 100 (Place des Martyrs - Chevalley - Ben Aknoun)',
+    type: 'bus',
+    color: '#F57C00',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_chevalley', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_101',
+    name: 'Ligne ETUSA 101 (Place des Martyrs - Aïn Benian - Zéralda)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_ain_benian', 'b_zeralda']
+  },
+  {
+    id: 'bus_etusa_107',
+    name: 'Ligne ETUSA 107 (1er Mai - Birkhadem - Saoula)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_mai', 'b_birmandreis', 'b_birkhadem', 'b_saoula']
+  },
+  {
+    id: 'bus_etusa_111',
+    name: 'Ligne ETUSA 111 (Ben Aknoun - Staouéli - Palm Beach)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_ben_aknoun', 'b_staoueli', 'b_palm_beach']
+  },
+  {
+    id: 'bus_etusa_113',
+    name: 'Ligne ETUSA 113 (Tafourah - Chevalley - Aïn Benian)',
+    type: 'bus',
+    color: '#FF6F00',
+    stations: ['b_tafourah', 'b_chevalley', 'b_ain_benian']
+  },
+  {
+    id: 'bus_etusa_631',
+    name: 'Ligne ETUSA 631 (1er Mai - Ruisseau - Kouba)',
+    type: 'bus',
+    color: '#FF8F00',
+    stations: ['b_mai', 'b_kouba']
+  },
+  {
+    id: 'bus_etusa_731',
+    name: 'Ligne ETUSA 731 (Ben Aknoun - Baba Hassen - Douera)',
+    type: 'bus',
+    color: '#E65100',
+    stations: ['b_ben_aknoun', 'b_baba_hassen', 'b_douera']
   },
 
   // --- PRIVATE BUS LINES ("Bus Privés") ---
@@ -993,22 +1768,78 @@ export const LINES: LineData[] = [
     id: 'bus_priv_p1',
     name: 'Bus Privé P1 (Bab Ezzouar Fac - Belfort - El Harrach)',
     type: 'bus_priv',
-    color: '#00ACC1', // Cyan
+    color: '#00ACC1',
     stations: ['bp_bab_ezzouar_fac', 'bp_bab_ezzouar_centre', 'bp_belfort', 'bp_harrach_centre']
   },
   {
     id: 'bus_priv_p2',
     name: 'Bus Privé P2 (Ben Aknoun - Chevalley - Place des Martyrs)',
     type: 'bus_priv',
-    color: '#00B8D4', // Brighter Cyan
+    color: '#00B8D4',
     stations: ['bp_ben_aknoun_gare', 'bp_dely_brahim', 'bp_chevalley', 'bp_triolet', 'bp_martyrs']
   },
   {
     id: 'bus_priv_p3',
     name: 'Bus Privé P3 (Kouba - Ruisseau - 1er Mai - Audin)',
     type: 'bus_priv',
-    color: '#0097A7', // Deep Cyan
+    color: '#0097A7',
     stations: ['bp_kouba_eglise', 'bp_jolie_vue', 'bp_ruisseau', 'bp_mai', 'bp_audin']
+  },
+  {
+    id: 'bus_priv_p4',
+    name: 'Bus Privé P4 (Chéraga - Dely Ibrahim - Ben Aknoun)',
+    type: 'bus_priv',
+    color: '#00838F',
+    stations: ['bp_cheraga', 'bp_dely_brahim', 'bp_ben_aknoun_gare']
+  },
+  {
+    id: 'bus_priv_p5',
+    name: 'Bus Privé P5 (Baraki - Gué de Constantine - El Harrach)',
+    type: 'bus_priv',
+    color: '#006064',
+    stations: ['bp_baraki', 'm_constantine', 'bp_harrach_centre']
+  },
+  {
+    id: 'bus_priv_p6',
+    name: 'Bus Privé P6 (Chéraga - El Biar - 1er Mai)',
+    type: 'bus_priv',
+    color: '#00ACC1',
+    stations: ['bp_cheraga', 'bp_dely_brahim', 'bp_ben_aknoun_gare', 'bp_mai']
+  },
+  {
+    id: 'bus_priv_p7',
+    name: 'Bus Privé P7 (Aïn Taya - Bordj El Bahri - Bab Ezzouar USTHB)',
+    type: 'bus_priv',
+    color: '#00B8D4',
+    stations: ['b_ain_taya', 'b_bordj_bahri', 'bp_bab_ezzouar_fac']
+  },
+  {
+    id: 'bus_priv_p8',
+    name: 'Bus Privé P8 (Rouïba - Réghaïa - Dergana)',
+    type: 'bus_priv',
+    color: '#0097A7',
+    stations: ['t_rouiba', 't_reghaia', 'tr_dergana']
+  },
+  {
+    id: 'bus_priv_p9',
+    name: 'Bus Privé P9 (Birtouta - Saoula - Birkhadem - 1er Mai)',
+    type: 'bus_priv',
+    color: '#00838F',
+    stations: ['b_birtouta_ville', 'b_saoula', 'b_birkhadem', 'bp_mai']
+  },
+  {
+    id: 'bus_priv_p10',
+    name: 'Bus Privé P10 (Zéralda - Staouéli - Chéraga - Ben Aknoun)',
+    type: 'bus_priv',
+    color: '#006064',
+    stations: ['b_zeralda', 'b_staoueli', 'bp_cheraga', 'bp_ben_aknoun_gare']
+  },
+  {
+    id: 'bus_priv_p11',
+    name: 'Bus Privé P11 (Baraki - Les Eucalyptus - Bachdjerrah)',
+    type: 'bus_priv',
+    color: '#00ACC1',
+    stations: ['bp_baraki', 'b_eucalyptus', 'b_bachdjerrah', 'bp_ruisseau']
   }
 ];
 
@@ -1020,7 +1851,7 @@ export const INITIAL_DISRUPTIONS: Disruption[] = [
     type: 'metro',
     severity: 'warning',
     lineId: 'metro_m1',
-    timestamp: '2026-07-11T08:00:00Z',
+    timestamp: '2026-08-04T08:00:00Z',
     active: true
   },
   {
@@ -1030,27 +1861,27 @@ export const INITIAL_DISRUPTIONS: Disruption[] = [
     type: 'tram',
     severity: 'critical',
     lineId: 'tram_t1',
-    timestamp: '2026-07-11T07:30:00Z',
+    timestamp: '2026-08-04T07:30:00Z',
     active: true
   },
   {
     id: 'd3',
-    title: 'Amélioration de service - Train de Banlieue',
-    description: 'Fréquence augmentée sur la ligne Alger - Reghaia - Thenia pour le week-end.',
+    title: 'Amélioration de service - Train RER Banlieue',
+    description: 'Fréquence augmentée sur la ligne Alger - Reghaia - Thenia et la Navette Express Aéroport.',
     type: 'train',
     severity: 'info',
     lineId: 'train_rer_est',
-    timestamp: '2026-07-11T06:00:00Z',
+    timestamp: '2026-08-04T06:00:00Z',
     active: true
   },
   {
     id: 'd4',
-    title: 'Embouteillage - Bus Privé',
-    description: 'Forts ralentissements sur la ligne P2 près de Dely Ibrahim en raison d\'un encombrement routier.',
-    type: 'bus_priv',
+    title: 'Maintenance préventive - Télécabine',
+    description: 'La télécabine Oued Koriche (Triolet - Bouzaréah) subit des contrôles techniques de sécurité.',
+    type: 'telepherique',
     severity: 'warning',
-    lineId: 'bus_priv_p2',
-    timestamp: '2026-07-11T08:15:00Z',
+    lineId: 'tel_line_bouzareah',
+    timestamp: '2026-08-04T08:15:00Z',
     active: true
   }
 ];

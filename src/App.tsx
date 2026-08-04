@@ -31,6 +31,7 @@ export default function App() {
     train: true,
     bus: true,
     bus_priv: true,
+    telepherique: true,
   });
 
   // Track online/offline status
@@ -168,11 +169,11 @@ export default function App() {
               <Train className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="font-extrabold text-lg text-slate-900 leading-tight tracking-tight">
-                Transports Alger <span className="text-rose-600">نقليات الجزائر</span>
+              <h1 className="font-extrabold text-xl text-slate-900 leading-tight tracking-tight">
+                Kifach Nro7 <span className="text-rose-600 font-bold font-arabic">كيفاش نروح</span>
               </h1>
               <p className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase mt-0.5">
-                Réseau Métropolitain d'Alger & Banlieue
+                Guide des Transports d'Alger & Banlieue
               </p>
             </div>
           </div>
@@ -211,13 +212,14 @@ export default function App() {
             <h3 className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 mb-3">
               Filtrer les modes de transport sur la carte
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
               {([
                 { id: 'metro', label: '🚇 Métro', color: 'border-rose-500 hover:bg-rose-50 text-rose-700', activeBg: 'bg-rose-600 text-white border-rose-600' },
                 { id: 'tram', label: '🚊 Tramway', color: 'border-blue-500 hover:bg-blue-50 text-blue-700', activeBg: 'bg-blue-600 text-white border-blue-600' },
                 { id: 'train', label: '🚆 RER SNTF', color: 'border-emerald-500 hover:bg-emerald-50 text-emerald-700', activeBg: 'bg-emerald-600 text-white border-emerald-600' },
                 { id: 'bus', label: '🚌 ETUSA', color: 'border-amber-500 hover:bg-amber-50 text-amber-700', activeBg: 'bg-amber-500 text-white border-amber-500' },
                 { id: 'bus_priv', label: '🚌 Bus Privé', color: 'border-cyan-500 hover:bg-cyan-50 text-cyan-700', activeBg: 'bg-cyan-600 text-white border-cyan-600' },
+                { id: 'telepherique', label: '🚡 Téléphérique', color: 'border-purple-500 hover:bg-purple-50 text-purple-700', activeBg: 'bg-purple-600 text-white border-purple-600' },
               ] as const).map((filter) => {
                 const isActive = activeFilters[filter.id];
                 return (

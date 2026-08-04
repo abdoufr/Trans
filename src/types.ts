@@ -1,4 +1,4 @@
-export type TransportType = 'metro' | 'tram' | 'train' | 'bus' | 'bus_priv';
+export type TransportType = 'metro' | 'tram' | 'train' | 'bus' | 'bus_priv' | 'telepherique';
 
 export interface Station {
   id: string;
