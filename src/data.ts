@@ -1445,17 +1445,6 @@ export const STATIONS: Station[] = [
     lines: ['P4', 'P6', 'P10'],
     connections: ['b_cheraga'],
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
-  },
-  {
-    id: 'bp_baraki',
-    name: 'Baraki Centre (Privé)',
-    nameAr: 'براقي (خاص)',
-    type: 'bus_priv',
-    lat: 36.6680,
-    lng: 3.0950,
-    lines: ['P5', 'P11'],
-    connections: ['m_constantine', 'b_baraki'],
-    schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
   }
 ];
 
