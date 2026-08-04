@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { STATIONS, LINES, INITIAL_DISRUPTIONS } from './src/data';
 import { Station, TransportType, RouteResult, RouteStep, Disruption } from './src/types';
 
+import { initTursoDB, getTursoStations, getTursoLines, getTursoPerturbations, addTursoPerturbation, getTursoSavedRoutes, saveTursoRoute } from './src/db/turso';
+
 dotenv.config();
 
 // Initialize Gemini API
@@ -23,37 +25,38 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
       },
     });
     console.log('Gemini API client initialized successfully.');
-  } catch (error) {
-    console.error('Failed to initialize Gemini API:', error);
+  } catch (err) {
+    console.error('Failed to initialize Gemini API:', err);
   }
 } else {
   console.log('No valid GEMINI_API_KEY found. Running in local/offline smart assistance fallback mode.');
 }
 
-// In-memory perturbations store
-let livePerturbations: Disruption[] = [...INITIAL_DISRUPTIONS];
-
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Initialize & Seed Turso SQLite / Cloud Edge Database
+  await initTursoDB();
 
   app.use(express.json());
 
   // --- API ENDPOINTS ---
 
-  // Get all stations with real-time simulated waiting times
-  app.get('/api/stations', (req, res) => {
+  // Get all stations from Turso DB with real-time simulated waiting times
+  app.get('/api/stations', async (req, res) => {
     try {
       const now = new Date();
       const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-      const stationsWithLiveTimes = STATIONS.map((station) => {
-        // Calculate a simulated waiting time based on the current seconds and frequency
+      const dbStations = await getTursoStations();
+      const dbLines = await getTursoLines();
+
+      const stationsWithLiveTimes = dbStations.map((station) => {
         const hour = now.getHours();
         const isPeak = (hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 19);
         const frequency = isPeak ? station.schedule.frequencyPeak : station.schedule.frequencyOffPeak;
         
-        // Wait time in minutes: modular loop of frequency
         const frequencySeconds = frequency * 60;
         const remainder = currentSeconds % frequencySeconds;
         const secondsToWait = frequencySeconds - remainder;
@@ -67,21 +70,26 @@ async function startServer() {
 
       res.json({
         stations: stationsWithLiveTimes,
-        lines: LINES,
+        lines: dbLines,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Failed to fetch stations' });
+      res.status(500).json({ error: 'Failed to fetch stations from Turso DB' });
     }
   });
 
-  // Get active traffic alerts and perturbations
-  app.get('/api/perturbations', (req, res) => {
-    res.json(livePerturbations);
+  // Get active traffic alerts and perturbations from Turso DB
+  app.get('/api/perturbations', async (req, res) => {
+    try {
+      const alerts = await getTursoPerturbations();
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch perturbations' });
+    }
   });
 
-  // Report a new perturbation
-  app.post('/api/perturbations', (req, res) => {
+  // Report a new perturbation to Turso DB
+  app.post('/api/perturbations', async (req, res) => {
     const { title, description, type, severity, lineId } = req.body;
     if (!title || !description || !type || !severity) {
       return res.status(400).json({ error: 'Missing required parameters' });
@@ -98,8 +106,28 @@ async function startServer() {
       active: true,
     };
 
-    livePerturbations.unshift(newDisruption);
+    await addTursoPerturbation(newDisruption);
     res.status(201).json(newDisruption);
+  });
+
+  // Saved routes endpoints
+  app.get('/api/saved-routes', async (req, res) => {
+    try {
+      const routes = await getTursoSavedRoutes();
+      res.json(routes);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to fetch saved routes' });
+    }
+  });
+
+  app.post('/api/saved-routes', async (req, res) => {
+    try {
+      const route = req.body;
+      await saveTursoRoute(route);
+      res.status(201).json(route);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to save route' });
+    }
   });
 
   // Dijkstra route calculator
