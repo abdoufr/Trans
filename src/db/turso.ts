@@ -81,24 +81,23 @@ export async function initTursoDB() {
     const stationCount = Number(stationsCheck.rows[0].count);
 
     if (stationCount === 0) {
-      console.log('[Turso DB] Seeding initial stations into Turso Database...');
-      for (const s of STATIONS) {
-        await turso.execute({
-          sql: `INSERT OR REPLACE INTO stations (id, name, name_ar, type, lat, lng, lines, connections, schedule)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-          args: [
-            s.id,
-            s.name,
-            s.nameAr,
-            s.type,
-            s.lat,
-            s.lng,
-            JSON.stringify(s.lines),
-            JSON.stringify(s.connections),
-            JSON.stringify(s.schedule),
-          ],
-        });
-      }
+      console.log('[Turso DB] Seeding initial stations into Turso Database in batch...');
+      const stationBatch = STATIONS.map(s => ({
+        sql: `INSERT OR REPLACE INTO stations (id, name, name_ar, type, lat, lng, lines, connections, schedule)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        args: [
+          s.id,
+          s.name,
+          s.nameAr,
+          s.type,
+          s.lat,
+          s.lng,
+          JSON.stringify(s.lines),
+          JSON.stringify(s.connections),
+          JSON.stringify(s.schedule),
+        ],
+      }));
+      await turso.batch(stationBatch);
     }
 
     // Seed Lines if table is empty
@@ -106,10 +105,10 @@ export async function initTursoDB() {
     const lineCount = Number(linesCheck.rows[0].count);
 
     if (lineCount === 0) {
-      console.log('[Turso DB] Seeding initial lines into Turso Database...');
-      for (const line of LINES) {
+      console.log('[Turso DB] Seeding initial lines into Turso Database in batch...');
+      const lineBatch = LINES.map(line => {
         const excelMatch = EXCEL_TRANSIT_DATASET.find(e => e.lineId === line.id);
-        await turso.execute({
+        return {
           sql: `INSERT OR REPLACE INTO lines (id, name, type, color, stations, terminus_a, terminus_b, tariff_da, frequency_min, operating_hours)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
           args: [
@@ -124,21 +123,21 @@ export async function initTursoDB() {
             excelMatch?.frequencyMin || 5,
             excelMatch?.operatingHours || '05:30 - 23:00',
           ],
-        });
-      }
+        };
+      });
+      await turso.batch(lineBatch);
     }
 
     // Seed Perturbations if empty
     const pertCheck = await turso.execute('SELECT COUNT(*) as count FROM perturbations;');
     if (Number(pertCheck.rows[0].count) === 0) {
-      console.log('[Turso DB] Seeding perturbations into Turso Database...');
-      for (const d of INITIAL_DISRUPTIONS) {
-        await turso.execute({
-          sql: `INSERT OR REPLACE INTO perturbations (id, title, description, type, severity, line_id, timestamp, active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
-          args: [d.id, d.title, d.description, d.type, d.severity, d.lineId || '', d.timestamp, d.active ? 1 : 0],
-        });
-      }
+      console.log('[Turso DB] Seeding perturbations into Turso Database in batch...');
+      const pertBatch = INITIAL_DISRUPTIONS.map(d => ({
+        sql: `INSERT OR REPLACE INTO perturbations (id, title, description, type, severity, line_id, timestamp, active)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        args: [d.id, d.title, d.description, d.type, d.severity, d.lineId || '', d.timestamp, d.active ? 1 : 0],
+      }));
+      await turso.batch(pertBatch);
     }
 
     console.log('[Turso DB] Initialization & Seeding Complete! Ready.');
