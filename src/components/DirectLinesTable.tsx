@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Station, LineData, TransportType } from '../types';
 import { Language, TRANSLATIONS } from '../translations';
 import { exportExcelCSV } from '../algiers_transit_excel';
+import { getStationName, getTransportModeName } from '../utils/language';
 import { Search, MapPin, ArrowRight, Route, Bus, Train, Compass, CheckCircle, ChevronDown, ChevronUp, Download } from 'lucide-react';
 
 interface DirectLinesTableProps {
@@ -168,12 +169,12 @@ export default function DirectLinesTable({
 
                 {/* Terminus Departure ➔ Arrival */}
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 text-xs font-bold text-slate-700">
-                  <span className="text-emerald-600 font-extrabold truncate max-w-[120px]">
-                    📍 {startStation?.name || 'Départ'}
+                  <span className="text-emerald-600 font-extrabold truncate max-w-[140px]">
+                    📍 {getStationName(startStation, lang) || 'Départ'}
                   </span>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                  <span className="text-rose-600 font-extrabold truncate max-w-[120px]">
-                    🏁 {endStation?.name || 'Arrivée'}
+                  <span className="text-rose-600 font-extrabold truncate max-w-[140px]">
+                    🏁 {getStationName(endStation, lang) || 'Arrivée'}
                   </span>
                 </div>
 
@@ -219,7 +220,7 @@ export default function DirectLinesTable({
                                 : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-300'
                             }`}
                           >
-                            <span>{st.name}</span>
+                            <span>{getStationName(st, lang)}</span>
                           </button>
 
                           {idx < lineStationsList.length - 1 && (

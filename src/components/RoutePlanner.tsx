@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Station, LineData, RouteResult, SavedRoute } from '../types';
 import { LINES } from '../data';
 import { computeRoute } from '../routeEngine';
+import { getStationName, getTransportModeName, formatStepInstruction, getLocalizedStopName } from '../utils/language';
 import { MapPin, Navigation, ArrowRightLeft, CreditCard, Clock, Star, AlertCircle, Share2, Sparkles, AlertTriangle, Compass, Target } from 'lucide-react';
 
 function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -243,10 +244,10 @@ export default function RoutePlanner({
               }}
               className="w-full bg-slate-50 border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-xl py-3 pl-10 pr-4 text-sm font-medium focus:outline-none appearance-none"
             >
-              <option value="">Sélectionner la gare...</option>
+              <option value="">{t.selectStation}</option>
               {sortedStations.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.type.toUpperCase()})
+                  {getStationName(s, lang)} ({getTransportModeName(s.type, lang)})
                 </option>
               ))}
             </select>
@@ -259,7 +260,7 @@ export default function RoutePlanner({
           <button
             onClick={handleSwap}
             className="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2.5 rounded-full transition shadow-2xs hover:rotate-180 duration-500"
-            title="Inverser les stations"
+            title={t.swapBtn}
           >
             <ArrowRightLeft className="w-4 h-4" />
           </button>
@@ -267,7 +268,7 @@ export default function RoutePlanner({
 
         <div className="md:col-span-2">
           <label className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block mb-1">
-            Destination
+            {t.destLabel}
           </label>
           <div className="relative">
             <select
@@ -275,10 +276,10 @@ export default function RoutePlanner({
               onChange={(e) => setDestinationId(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-xl py-3 pl-10 pr-4 text-sm font-medium focus:outline-none appearance-none"
             >
-              <option value="">Sélectionner la gare...</option>
+              <option value="">{t.selectStation}</option>
               {sortedStations.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.type.toUpperCase()})
+                  {getStationName(s, lang)} ({getTransportModeName(s.type, lang)})
                 </option>
               ))}
             </select>
@@ -454,14 +455,14 @@ export default function RoutePlanner({
                     <div className="text-xs">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-800 text-sm">
-                          {step.stationName}
+                          {getStationName(stations.find((st) => st.id === step.stationId || st.name === step.stationName), lang) || step.stationName}
                         </span>
                         {step.type !== 'walk' && (
                           <span
                             className="px-1.5 py-0.5 rounded text-[9px] uppercase font-bold text-white"
                             style={{ backgroundColor: color }}
                           >
-                            {step.type === 'bus_priv' ? 'bus privé' : step.type}
+                            {getTransportModeName(step.type, lang)}
                           </span>
                         )}
                         {step.duration > 0 && (
@@ -471,7 +472,9 @@ export default function RoutePlanner({
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-500 mt-1">{step.instruction}</p>
+                      <p className="text-slate-500 mt-1 font-medium">
+                        {formatStepInstruction(step, lang, stations)}
+                      </p>
 
                       {/* Intermediate Stops Expandable Drawer */}
                       {step.intermediateStops && step.intermediateStops.length > 0 && (
@@ -482,7 +485,13 @@ export default function RoutePlanner({
                             className="text-[11px] font-extrabold text-rose-600 hover:text-rose-700 flex items-center gap-1 bg-rose-50 hover:bg-rose-100/70 px-2.5 py-1 rounded-lg transition"
                           >
                             <span>
-                              {expandedSteps[idx] ? '▼ Masquer le détail des stations' : `▶ Voir les ${step.intermediateStops.length} arrêt(s) traversé(s)`}
+                              {expandedSteps[idx] 
+                                ? (lang === 'ar' || lang === 'dz' ? '▼ إخفاء تفاصيل المحطات' : lang === 'en' ? '▼ Hide station details' : '▼ Masquer le détail des stations') 
+                                : (lang === 'ar' || lang === 'dz' 
+                                    ? `▶ عرض ${step.intermediateStops.length} محطات حافلة/قطار في الطريق` 
+                                    : lang === 'en' 
+                                    ? `▶ View ${step.intermediateStops.length} stop(s) passed` 
+                                    : `▶ Voir les ${step.intermediateStops.length} arrêt(s) traversé(s)`)}
                             </span>
                           </button>
 
@@ -491,7 +500,7 @@ export default function RoutePlanner({
                               {step.intermediateStops.map((stopName, stopIdx) => (
                                 <div key={stopIdx} className="flex items-center gap-2 font-medium text-[11px] text-slate-700">
                                   <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
-                                  <span>{stopName}</span>
+                                  <span>{getLocalizedStopName(stopName, lang, stations)}</span>
                                 </div>
                               ))}
                             </div>
