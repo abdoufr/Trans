@@ -234,6 +234,66 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       };
     }
 
+    // 0. Check if startId and endId are on the SAME transport line directly
+    for (const line of LINES) {
+      const idx1 = line.stations.indexOf(startId);
+      const idx2 = line.stations.indexOf(endId);
+      if (idx1 !== -1 && idx2 !== -1) {
+        const stepStations = idx1 < idx2 
+          ? line.stations.slice(idx1, idx2 + 1)
+          : line.stations.slice(idx2, idx1 + 1).reverse();
+        
+        const intermediate = stepStations.slice(1, -1).map(id => STATIONS.find(s => s.id === id)?.name || id);
+        const startSt = STATIONS.find(s => s.id === startId);
+        const endSt = STATIONS.find(s => s.id === endId);
+
+        let perStationDuration = 2;
+        if (line.type === 'telepherique') perStationDuration = 3;
+        if (line.type === 'train') perStationDuration = 2;
+        if (line.type === 'bus' || line.type === 'bus_priv') perStationDuration = 4;
+
+        const totalDuration = (stepStations.length - 1) * perStationDuration;
+
+        let cost = 50;
+        if (line.type === 'tram') cost = 40;
+        if (line.type === 'train') cost = 45;
+        if (line.type === 'bus') cost = 30;
+        if (line.type === 'bus_priv') cost = 35;
+        if (line.type === 'telepherique') cost = 30;
+
+        return {
+          steps: [
+            {
+              stationId: startId,
+              stationName: startSt?.name || '',
+              type: 'walk',
+              instruction: `📍 Départ de la station ${startSt?.name}`,
+              duration: 0
+            },
+            {
+              stationId: endId,
+              stationName: endSt?.name || '',
+              type: line.type,
+              lineName: line.name,
+              duration: totalDuration,
+              instruction: `Embarquez à ${startSt?.name} sur ${line.name} et descendez directement à ${endSt?.name} (${stepStations.length - 1} stations - ${totalDuration} min)`,
+              intermediateStops: intermediate
+            },
+            {
+              stationId: endId,
+              stationName: endSt?.name || '',
+              type: 'walk',
+              instruction: `🎉 Arrivée à la station ${endSt?.name}`,
+              duration: 0
+            }
+          ],
+          totalDuration,
+          totalCost: cost,
+          transfers: 0
+        };
+      }
+    }
+
     // Graph structure for Dijkstra
     const graph: Record<string, Record<string, { weight: number; type: TransportType | 'walk'; lineName?: string }>> = {};
 
@@ -250,9 +310,9 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         if (graph[u] && graph[v]) {
           let weight = 2;
           if (line.type === 'telepherique') weight = 3;
-          if (line.type === 'train') weight = 4;
-          if (line.type === 'bus') weight = 5;
-          if (line.type === 'bus_priv') weight = 5;
+          if (line.type === 'train') weight = 2; // RER express speed
+          if (line.type === 'bus') weight = 4;
+          if (line.type === 'bus_priv') weight = 4;
 
           graph[u][v] = { weight, type: line.type, lineName: line.name };
           graph[v][u] = { weight, type: line.type, lineName: line.name };
@@ -260,13 +320,13 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       }
     });
 
-    // 2. Add connection edges (walk/transfer: 5 minutes)
+    // 2. Add connection edges (walk/transfer penalty: 12 minutes to discourage unnecessary mode-hopping)
     STATIONS.forEach(s => {
       s.connections.forEach(connId => {
         if (graph[s.id] && graph[connId]) {
           if (!graph[s.id][connId]) {
-            graph[s.id][connId] = { weight: 5, type: 'walk', lineName: 'Correspondance à pied' };
-            graph[connId][s.id] = { weight: 5, type: 'walk', lineName: 'Correspondance à pied' };
+            graph[s.id][connId] = { weight: 12, type: 'walk', lineName: 'Correspondance à pied' };
+            graph[connId][s.id] = { weight: 12, type: 'walk', lineName: 'Correspondance à pied' };
           }
         }
       });
