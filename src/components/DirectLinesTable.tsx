@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Station, LineData, TransportType } from '../types';
 import { Language, TRANSLATIONS } from '../translations';
-import { Search, MapPin, ArrowRight, Route, Bus, Train, Compass, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { exportExcelCSV } from '../algiers_transit_excel';
+import { Search, MapPin, ArrowRight, Route, Bus, Train, Compass, CheckCircle, ChevronDown, ChevronUp, Download } from 'lucide-react';
 
 interface DirectLinesTableProps {
   lines: LineData[];
@@ -23,6 +24,18 @@ export default function DirectLinesTable({
   const [expandedLineId, setExpandedLineId] = useState<string | null>(null);
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+
+  const handleDownloadExcel = () => {
+    const csvContent = exportExcelCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'Tableau_Lignes_Transports_Alger.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Filter lines based on mode and search term
   const filteredLines = lines.filter((line) => {
@@ -54,15 +67,24 @@ export default function DirectLinesTable({
         <div>
           <h3 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
             <Route className="w-5 h-5 text-rose-600" />
-            <span>Tableau des Lignes Directes d'Alger</span>
+            <span>Tableau Excel des Lignes Directes d'Alger</span>
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
             Gare de Départ ➔ Arrêts Intermédiaires ➔ Gare d'Arrivée
           </p>
         </div>
-        <span className="text-xs font-bold bg-rose-50 text-rose-700 px-3 py-1 rounded-full border border-rose-100 self-start sm:self-auto">
-          {filteredLines.length} Lignes disponibles
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleDownloadExcel}
+            className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center gap-1.5 transition"
+          >
+            <Download className="w-4 h-4" />
+            <span>Télécharger Tableau Excel (.CSV)</span>
+          </button>
+          <span className="text-xs font-bold bg-rose-50 text-rose-700 px-3 py-1.5 rounded-xl border border-rose-100">
+            {filteredLines.length} Lignes
+          </span>
+        </div>
       </div>
 
       {/* Search & Mode Filters */}
