@@ -92,13 +92,13 @@ export const STATIONS: Station[] = [
   },
   {
     id: 'm_ruisseau',
-    name: 'Les Fusillés (Ruisseau)',
-    nameAr: 'العناصر - الرويسو',
+    name: 'Les Fusillés (Ruisseau - Métro)',
+    nameAr: 'العناصر - الرويسو (مترو)',
     type: 'metro',
     lat: 36.7425,
     lng: 3.0825,
-    lines: ['M1', 'Tram T1'],
-    connections: ['m_jardin', 'm_amirouche', 'tr_ruisseau', 'tr_les_fusilles', 'bp_ruisseau'],
+    lines: ['M1'],
+    connections: ['m_jardin', 'm_amirouche', 'tr_fusilles', 'bp_ruisseau'],
     schedule: { firstDeparture: '05:18', lastDeparture: '23:18', frequencyPeak: 4, frequencyOffPeak: 8 }
   },
   {
@@ -190,28 +190,17 @@ export const STATIONS: Station[] = [
     schedule: { firstDeparture: '05:32', lastDeparture: '23:32', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
 
-  // --- TRAMWAY LINES (T1 - 25 COMPLETE STATIONS) ---
+  // --- TRAMWAY LINES (T1 - COMPLETE 27 STATIONS) ---
   {
-    id: 'tr_ruisseau',
-    name: 'Ruisseau (Tramway)',
-    nameAr: 'الرويسو (ترامواي)',
+    id: 'tr_fusilles',
+    name: 'Les Fusillés - Ruisseau (Tramway)',
+    nameAr: 'العناصر - الرويسو (ترامواي)',
     type: 'tram',
     lat: 36.7425,
     lng: 3.0825,
     lines: ['Tram T1'],
-    connections: ['m_ruisseau', 'tr_les_fusilles', 'bp_ruisseau'],
+    connections: ['m_ruisseau', 'tr_maaza', 'bp_ruisseau'],
     schedule: { firstDeparture: '05:30', lastDeparture: '23:15', frequencyPeak: 6, frequencyOffPeak: 12 }
-  },
-  {
-    id: 'tr_les_fusilles',
-    name: 'Les Fusillés (Tramway)',
-    nameAr: 'العناصر (ترامواي)',
-    type: 'tram',
-    lat: 36.7420,
-    lng: 3.0835,
-    lines: ['Tram T1'],
-    connections: ['tr_ruisseau', 'tr_maaza', 'm_ruisseau'],
-    schedule: { firstDeparture: '05:31', lastDeparture: '23:16', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
     id: 'tr_maaza',
@@ -221,7 +210,7 @@ export const STATIONS: Station[] = [
     lat: 36.7410,
     lng: 3.0900,
     lines: ['Tram T1'],
-    connections: ['tr_les_fusilles', 'tr_mosquee'],
+    connections: ['tr_fusilles', 'tr_mosquee'],
     schedule: { firstDeparture: '05:34', lastDeparture: '23:19', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
@@ -254,8 +243,19 @@ export const STATIONS: Station[] = [
     lat: 36.7380,
     lng: 3.1120,
     lines: ['Tram T1'],
-    connections: ['tr_hamadache', 'tr_caroubier'],
+    connections: ['tr_hamadache', 'tr_bananiers'],
     schedule: { firstDeparture: '05:43', lastDeparture: '23:28', frequencyPeak: 6, frequencyOffPeak: 12 }
+  },
+  {
+    id: 'tr_bananiers',
+    name: 'Cité Mokhtar Zerhouni (Les Bananiers)',
+    nameAr: 'حي مختار زرهوني (الموز)',
+    type: 'tram',
+    lat: 36.7370,
+    lng: 3.1200,
+    lines: ['Tram T1'],
+    connections: ['tr_thaalibia', 'tr_caroubier'],
+    schedule: { firstDeparture: '05:45', lastDeparture: '23:30', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
     id: 'tr_caroubier',
@@ -265,7 +265,7 @@ export const STATIONS: Station[] = [
     lat: 36.7360,
     lng: 3.1280,
     lines: ['Tram T1'],
-    connections: ['tr_thaalibia', 'tr_glaciere', 't_caroubier'],
+    connections: ['tr_bananiers', 'tr_glaciere', 't_caroubier'],
     schedule: { firstDeparture: '05:48', lastDeparture: '23:33', frequencyPeak: 6, frequencyOffPeak: 12 }
   },
   {
@@ -1465,8 +1465,8 @@ export const LINES: LineData[] = [
     type: 'tram',
     color: '#1976D2', // Blue
     stations: [
-      'tr_ruisseau', 'tr_les_fusilles', 'tr_maaza', 'tr_mosquee', 'tr_hamadache',
-      'tr_thaalibia', 'tr_caroubier', 'tr_glaciere', 'tr_pont_est', 'tr_belfort',
+      'tr_fusilles', 'tr_maaza', 'tr_mosquee', 'tr_hamadache',
+      'tr_thaalibia', 'tr_bananiers', 'tr_caroubier', 'tr_glaciere', 'tr_pont_est', 'tr_belfort',
       'tr_badi', 'tr_juillet', 'tr_bab_ezzouar_pont', 'tr_usthb', 'tr_cite_8mai',
       'tr_centre_commercial', 'tr_cite_u', 'tr_smail_yefsah', 'tr_cite_206',
       'tr_bordj_kiffan', 'tr_mouhous', 'tr_mimouni', 'tr_ben_mred', 'tr_zerhouni', 'tr_dergana'
