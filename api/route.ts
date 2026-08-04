@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { STATIONS, LINES } from '../../src/data';
-import { TransportType, RouteResult, RouteStep } from '../../src/types';
+import { STATIONS, LINES } from '../src/data';
+import { TransportType, RouteResult, RouteStep } from '../src/types';
 
 function computeRoute(startId: string, endId: string): RouteResult | null {
   if (startId === endId) {
