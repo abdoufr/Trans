@@ -1304,6 +1304,28 @@ export const STATIONS: Station[] = [
     schedule: { firstDeparture: '06:00', lastDeparture: '20:00', frequencyPeak: 8, frequencyOffPeak: 15 }
   },
   {
+    id: 'bp_baraki',
+    name: 'Baraki Centre (Privé)',
+    nameAr: 'براقي وسط (خاص)',
+    type: 'bus_priv',
+    lat: 36.6970,
+    lng: 3.0950,
+    lines: ['P5', 'P11'],
+    connections: ['m_constantine', 'b_eucalyptus', 'b_bachdjerrah'],
+    schedule: { firstDeparture: '06:00', lastDeparture: '20:30', frequencyPeak: 8, frequencyOffPeak: 15 }
+  },
+  {
+    id: 'b_baraki',
+    name: 'Station ETUSA Baraki',
+    nameAr: 'محطة براقي (إيتوزا)',
+    type: 'bus',
+    lat: 36.6980,
+    lng: 3.0960,
+    lines: ['Bus 105'],
+    connections: ['bp_baraki', 'm_constantine'],
+    schedule: { firstDeparture: '05:30', lastDeparture: '21:30', frequencyPeak: 10, frequencyOffPeak: 20 }
+  },
+  {
     id: 'bp_ben_aknoun_gare',
     name: 'Ben Aknoun Gare Routière (Privé)',
     nameAr: 'محطة بن عكنون (خاص)',

@@ -54,6 +54,7 @@ export interface RouteStep {
   lineName?: string;
   duration: number; // in minutes
   instruction: string;
+  intermediateStops?: string[]; // Names of intermediate stations passed along this leg
 }
 
 export interface RouteResult {

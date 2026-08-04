@@ -46,6 +46,7 @@ export default function RoutePlanner({
   const [error, setError] = useState('');
   const [routeNameInput, setRouteNameInput] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
 
   // Auto Sort stations alphabetically for better UI lists
   const sortedStations = [...stations].sort((a, b) => a.name.localeCompare(b.name));
@@ -486,6 +487,32 @@ export default function RoutePlanner({
                         )}
                       </div>
                       <p className="text-slate-500 mt-1">{step.instruction}</p>
+
+                      {/* Intermediate Stops Expandable Drawer */}
+                      {step.intermediateStops && step.intermediateStops.length > 0 && (
+                        <div className="mt-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedSteps(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                            className="text-[11px] font-extrabold text-rose-600 hover:text-rose-700 flex items-center gap-1 bg-rose-50 hover:bg-rose-100/70 px-2.5 py-1 rounded-lg transition"
+                          >
+                            <span>
+                              {expandedSteps[idx] ? '▼ Masquer le détail des stations' : `▶ Voir les ${step.intermediateStops.length} arrêt(s) traversé(s)`}
+                            </span>
+                          </button>
+
+                          {expandedSteps[idx] && (
+                            <div className="mt-2 pl-3 border-l-2 border-dashed border-rose-300 space-y-1.5 py-1 text-slate-600 text-xs animate-fade-in bg-slate-50/60 rounded-r-xl p-2">
+                              {step.intermediateStops.map((stopName, stopIdx) => (
+                                <div key={stopIdx} className="flex items-center gap-2 font-medium text-[11px] text-slate-700">
+                                  <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
+                                  <span>{stopName}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

@@ -370,6 +370,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
       lineName?: string;
       duration: number;
       stationCount: number;
+      intermediateStops: string[];
     } | null = null;
 
     let transfers = 0;
@@ -387,6 +388,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
           lineName: hop.lineName,
           duration: hop.weight,
           stationCount: 1,
+          intermediateStops: [hop.toName],
         };
       } else if (currentLeg.type === hop.type && currentLeg.lineName === hop.lineName) {
         // Continue same line/mode leg
@@ -394,6 +396,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
         currentLeg.toStationName = hop.toName;
         currentLeg.duration += hop.weight;
         currentLeg.stationCount += 1;
+        currentLeg.intermediateStops.push(hop.toName);
       } else {
         // Flush previous leg
         if (currentLeg.type === 'walk') {
@@ -404,6 +407,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
             lineName: currentLeg.lineName,
             duration: currentLeg.duration,
             instruction: `🔄 Correspondance à pied vers la station ${currentLeg.toStationName} (${currentLeg.duration} min)`,
+            intermediateStops: currentLeg.intermediateStops,
           });
         } else {
           usedModes.add(currentLeg.type);
@@ -414,6 +418,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
             lineName: currentLeg.lineName,
             duration: currentLeg.duration,
             instruction: `Embarquez à ${currentLeg.fromStationName} sur ${currentLeg.lineName} et descendez à ${currentLeg.toStationName} (${currentLeg.stationCount} stations - ${currentLeg.duration} min)`,
+            intermediateStops: currentLeg.intermediateStops,
           });
         }
 
@@ -431,6 +436,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
           lineName: hop.lineName,
           duration: hop.weight,
           stationCount: 1,
+          intermediateStops: [hop.toName],
         };
       }
     });
@@ -446,6 +452,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
           lineName: leg.lineName,
           duration: leg.duration,
           instruction: `🔄 Correspondance à pied vers ${leg.toStationName} (${leg.duration} min)`,
+          intermediateStops: leg.intermediateStops,
         });
       } else {
         usedModes.add(leg.type);
@@ -456,6 +463,7 @@ Réponds aux questions de l'utilisateur de manière concise, polie et pratique e
           lineName: leg.lineName,
           duration: leg.duration,
           instruction: `Embarquez à ${leg.fromStationName} sur ${leg.lineName} et descendez à la station ${leg.toStationName} (${leg.stationCount} stations - ${leg.duration} min)`,
+          intermediateStops: leg.intermediateStops,
         });
       }
     }
