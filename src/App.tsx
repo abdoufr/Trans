@@ -6,10 +6,17 @@ import BahdjaGuideChat from './components/BahdjaGuideChat';
 import RoutePlanner from './components/RoutePlanner';
 import DisruptionAlerts from './components/DisruptionAlerts';
 import OfflineTimetables from './components/OfflineTimetables';
-import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight } from 'lucide-react';
+import LiveNavigationOverlay from './components/LiveNavigationOverlay';
+import { Language, TRANSLATIONS } from './translations';
+import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight, Languages } from 'lucide-react';
 
 export default function App() {
   // State variables
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('kifach_lang') as Language) || 'fr';
+  });
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+
   const [stations, setStations] = useState<Station[]>(STATIONS);
   const [lines] = useState<LineData[]>(LINES);
   const [disruptions, setDisruptions] = useState<Disruption[]>(INITIAL_DISRUPTIONS);
@@ -19,6 +26,10 @@ export default function App() {
   const [selectedLine, setSelectedLine] = useState<LineData | null>(null);
   const [activeRoute, setActiveRoute] = useState<RouteResult | null>(null);
   const [highlightedSteps, setHighlightedSteps] = useState<string[]>([]);
+
+  // Live Navigation Mode State
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [navRoute, setNavRoute] = useState<RouteResult | null>(null);
   
   const [activeTab, setActiveTab] = useState<'route' | 'timetable' | 'alerts' | 'favorites'>('route');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -158,8 +169,10 @@ export default function App() {
     }));
   };
 
+  const isRtl = lang === 'ar' || lang === 'dz';
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans relative pb-12" id="app-root">
+    <div className={`min-h-screen bg-slate-50 flex flex-col font-sans relative pb-12 ${isRtl ? 'dir-rtl' : ''}`} id="app-root" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Dynamic Header */}
       <header className="bg-white border-b border-slate-100 shadow-3xs sticky top-0 z-50 px-4 py-3 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -170,16 +183,35 @@ export default function App() {
             </div>
             <div>
               <h1 className="font-extrabold text-xl text-slate-900 leading-tight tracking-tight">
-                Kifach Nro7 <span className="text-rose-600 font-bold font-arabic">كيفاش نروح</span>
+                {t.appName} <span className="text-rose-600 font-bold font-arabic">كيفاش نروح</span>
               </h1>
               <p className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase mt-0.5">
-                Guide des Transports d'Alger & Banlieue
+                {t.appSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Real-time status bar */}
-          <div className="flex items-center gap-3">
+          {/* Real-time status bar & Language switcher */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+            {/* Language Dropdown Selector */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/60 shadow-2xs">
+              <Languages className="w-3.5 h-3.5 text-slate-500 mx-1.5" />
+              <select
+                value={lang}
+                onChange={(e) => {
+                  const newLang = e.target.value as Language;
+                  setLang(newLang);
+                  localStorage.setItem('kifach_lang', newLang);
+                }}
+                className="bg-transparent text-xs font-extrabold text-slate-700 py-1 pr-2 focus:outline-none cursor-pointer"
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="ar">🇩🇿 العربية</option>
+                <option value="dz">🇩🇿 دارجة</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+
             {/* Live Clock */}
             <div className="bg-slate-100 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-slate-200/40">
               <Clock className="w-3.5 h-3.5 text-slate-500 animate-pulse" />
@@ -195,7 +227,7 @@ export default function App() {
                 : 'bg-emerald-50 border-emerald-200 text-emerald-700'
             }`}>
               <Globe className={`w-3.5 h-3.5 ${isOffline ? 'text-amber-500 animate-bounce' : 'text-emerald-500'}`} />
-              <span>{isOffline ? 'Mode Hors-ligne' : 'Live Connecté'}</span>
+              <span>{isOffline ? t.offlineStatus : t.liveStatus}</span>
             </div>
           </div>
         </div>
@@ -210,16 +242,16 @@ export default function App() {
           {/* Bento Transport Quick Filters Bar */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
             <h3 className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 mb-3">
-              Filtrer les modes de transport sur la carte
+              {t.filterTitle}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
               {([
-                { id: 'metro', label: '🚇 Métro', color: 'border-rose-500 hover:bg-rose-50 text-rose-700', activeBg: 'bg-rose-600 text-white border-rose-600' },
-                { id: 'tram', label: '🚊 Tramway', color: 'border-blue-500 hover:bg-blue-50 text-blue-700', activeBg: 'bg-blue-600 text-white border-blue-600' },
-                { id: 'train', label: '🚆 RER SNTF', color: 'border-emerald-500 hover:bg-emerald-50 text-emerald-700', activeBg: 'bg-emerald-600 text-white border-emerald-600' },
-                { id: 'bus', label: '🚌 ETUSA', color: 'border-amber-500 hover:bg-amber-50 text-amber-700', activeBg: 'bg-amber-500 text-white border-amber-500' },
-                { id: 'bus_priv', label: '🚌 Bus Privé', color: 'border-cyan-500 hover:bg-cyan-50 text-cyan-700', activeBg: 'bg-cyan-600 text-white border-cyan-600' },
-                { id: 'telepherique', label: '🚡 Téléphérique', color: 'border-purple-500 hover:bg-purple-50 text-purple-700', activeBg: 'bg-purple-600 text-white border-purple-600' },
+                { id: 'metro', label: t.filterMetro, color: 'border-rose-500 hover:bg-rose-50 text-rose-700', activeBg: 'bg-rose-600 text-white border-rose-600' },
+                { id: 'tram', label: t.filterTram, color: 'border-blue-500 hover:bg-blue-50 text-blue-700', activeBg: 'bg-blue-600 text-white border-blue-600' },
+                { id: 'train', label: t.filterTrain, color: 'border-emerald-500 hover:bg-emerald-50 text-emerald-700', activeBg: 'bg-emerald-600 text-white border-emerald-600' },
+                { id: 'bus', label: t.filterBus, color: 'border-amber-500 hover:bg-amber-50 text-amber-700', activeBg: 'bg-amber-500 text-white border-amber-500' },
+                { id: 'bus_priv', label: t.filterBusPriv, color: 'border-cyan-500 hover:bg-cyan-50 text-cyan-700', activeBg: 'bg-cyan-600 text-white border-cyan-600' },
+                { id: 'telepherique', label: t.filterTelepherique, color: 'border-purple-500 hover:bg-purple-50 text-purple-700', activeBg: 'bg-purple-600 text-white border-purple-600' },
               ] as const).map((filter) => {
                 const isActive = activeFilters[filter.id];
                 return (
@@ -240,10 +272,10 @@ export default function App() {
           {/* Widget Tabs control panel */}
           <div className="flex bg-slate-200/60 p-1.5 rounded-2xl gap-1">
             {([
-              { id: 'route', label: 'Itinéraires', icon: Navigation },
-              { id: 'timetable', label: 'Horaires', icon: CalendarDays },
-              { id: 'alerts', label: 'Alertes', icon: BellRing },
-              { id: 'favorites', label: 'Favoris', icon: Star },
+              { id: 'route', label: t.tabRoute, icon: Navigation },
+              { id: 'timetable', label: t.tabTimetable, icon: CalendarDays },
+              { id: 'alerts', label: t.tabAlerts, icon: BellRing },
+              { id: 'favorites', label: t.tabFavorites, icon: Star },
             ] as const).map((tab) => {
               const Icon = tab.icon;
               return (
@@ -268,13 +300,17 @@ export default function App() {
             {activeTab === 'route' && (
               <RoutePlanner
                 stations={stations}
+                lang={lang}
                 onRouteCalculated={handleRouteCalculated}
                 onSaveRoute={handleSaveRoute}
                 savedRoutes={savedRoutes}
                 onLoadSavedRoute={(oId, dId) => {
-                  // zoom into loaded route's departure station
                   const orig = stations.find(s => s.id === oId);
                   if (orig) setSelectedStation(orig);
+                }}
+                onStartNavigation={(route) => {
+                  setNavRoute(route);
+                  setIsNavigating(true);
                 }}
               />
             )}
@@ -400,6 +436,23 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* Live Navigation Overlay Mode */}
+      {isNavigating && navRoute && (
+        <LiveNavigationOverlay
+          route={navRoute}
+          stations={stations}
+          lang={lang}
+          onStepChange={(stepIndex, stationId) => {
+            const st = stations.find((s) => s.id === stationId);
+            if (st) setSelectedStation(st);
+          }}
+          onClose={() => {
+            setIsNavigating(false);
+            setNavRoute(null);
+          }}
+        />
+      )}
 
       {/* Sliding AI Assistant Drawer */}
       <BahdjaGuideChat

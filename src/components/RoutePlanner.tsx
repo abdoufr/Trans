@@ -14,21 +14,28 @@ function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: num
   return R * c;
 }
 
+import { Language, TRANSLATIONS } from '../translations';
+
 interface RoutePlannerProps {
   stations: Station[];
+  lang: Language;
   onRouteCalculated: (route: RouteResult | null, originId: string, destId: string) => void;
   onSaveRoute: (originId: string, destId: string, name: string) => void;
   savedRoutes: SavedRoute[];
   onLoadSavedRoute: (originId: string, destId: string) => void;
+  onStartNavigation: (route: RouteResult) => void;
 }
 
 export default function RoutePlanner({
   stations,
+  lang,
   onRouteCalculated,
   onSaveRoute,
   savedRoutes,
   onLoadSavedRoute,
+  onStartNavigation,
 }: RoutePlannerProps) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.fr;
   const [originId, setOriginId] = useState('');
   const [destinationId, setDestinationId] = useState('');
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
@@ -398,6 +405,16 @@ export default function RoutePlanner({
               </div>
             </div>
           </div>
+
+          {/* Start Live Turn-by-Turn Navigation Button */}
+          <button
+            type="button"
+            onClick={() => routeResult && onStartNavigation(routeResult)}
+            className="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-extrabold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] active:scale-[0.99] border border-slate-700"
+          >
+            <Navigation className="w-4.5 h-4.5 text-emerald-400 animate-pulse" />
+            <span>{t.startNavBtn}</span>
+          </button>
 
           {/* Gemini AI Advice Card */}
           {aiAdvice && (
