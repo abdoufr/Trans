@@ -38,23 +38,37 @@ export default function DirectLinesTable({
     document.body.removeChild(link);
   };
 
-  // Filter lines based on mode and search term
+  // Multilingual and multi-field advanced search filter
   const filteredLines = lines.filter((line) => {
     const matchesFilter = selectedFilter === 'all' || line.type === selectedFilter;
+    if (!matchesFilter) return false;
 
-    const startSt = stations.find((s) => s.id === line.stations[0]);
-    const endSt = stations.find((s) => s.id === line.stations[line.stations.length - 1]);
+    if (!searchQuery.trim()) return true;
 
-    const lineNameMatch = line.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const startMatch = startSt?.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const endMatch = endSt?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase().trim();
+    const queryTokens = q.split(/\s+/);
 
-    const intermediateMatch = line.stations.some((stId) => {
+    // Collect all searchable text strings for this line
+    const searchableTexts: string[] = [
+      line.id.toLowerCase(),
+      line.name.toLowerCase(),
+      line.type.toLowerCase(),
+      getTransportModeName(line.type, lang).toLowerCase(),
+    ];
+
+    line.stations.forEach((stId) => {
       const st = stations.find((s) => s.id === stId);
-      return st?.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (st) {
+        searchableTexts.push(st.name.toLowerCase());
+        if (st.nameAr) searchableTexts.push(st.nameAr.toLowerCase());
+        searchableTexts.push(getStationName(st, lang).toLowerCase());
+      }
     });
 
-    return matchesFilter && (lineNameMatch || startMatch || endMatch || intermediateMatch);
+    const combinedText = searchableTexts.join(' ');
+
+    // Match if all query tokens appear in the combined text
+    return queryTokens.every((token) => combinedText.includes(token));
   });
 
   const toggleExpand = (lineId: string) => {

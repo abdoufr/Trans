@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Station, LineData, TransportType } from '../types';
+import { Station, LineData, TransportType, RouteResult } from '../types';
 
 interface InteractiveMapProps {
   stations: Station[];
@@ -11,6 +11,7 @@ interface InteractiveMapProps {
   onSelectLine: (line: LineData | null) => void;
   activeFilters: Record<TransportType, boolean>;
   highlightedSteps: string[]; // List of station IDs in the current route
+  activeRoute?: RouteResult | null;
 }
 
 export default function InteractiveMap({
@@ -22,11 +23,14 @@ export default function InteractiveMap({
   onSelectLine,
   activeFilters,
   highlightedSteps,
+  activeRoute,
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
   const polylinesRef = useRef<Record<string, L.Polyline>>({});
+  const routePolylinesRef = useRef<L.Polyline[]>([]);
+  const startEndMarkersRef = useRef<L.Marker[]>([]);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const userLineRef = useRef<L.Polyline | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -278,6 +282,113 @@ export default function InteractiveMap({
     });
 
   }, [stations, lines, selectedStation, selectedLine, activeFilters, highlightedSteps]);
+
+  // 3. Draw Active Google Maps Style Route Path on Map
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear previous route polylines
+    routePolylinesRef.current.forEach((pl) => pl.remove());
+    routePolylinesRef.current = [];
+
+    // Clear previous start/end markers
+    startEndMarkersRef.current.forEach((m) => m.remove());
+    startEndMarkersRef.current = [];
+
+    if (!activeRoute || !activeRoute.steps || activeRoute.steps.length === 0) return;
+
+    const routeCoords: [number, number][] = [];
+
+    // Draw route segment by segment
+    for (let i = 0; i < activeRoute.steps.length - 1; i++) {
+      const stepA = activeRoute.steps[i];
+      const stepB = activeRoute.steps[i + 1];
+
+      const stA = stations.find((s) => s.id === stepA.stationId);
+      const stB = stations.find((s) => s.id === stepB.stationId);
+
+      if (stA && stB) {
+        routeCoords.push([stA.lat, stA.lng]);
+        routeCoords.push([stB.lat, stB.lng]);
+
+        const isWalk = stepB.type === 'walk';
+        const color =
+          stepB.type === 'metro'
+            ? '#EF4444'
+            : stepB.type === 'tram'
+            ? '#2563EB'
+            : stepB.type === 'train'
+            ? '#059669'
+            : stepB.type === 'bus_priv'
+            ? '#0891B2'
+            : stepB.type === 'telepherique'
+            ? '#9333EA'
+            : stepB.type === 'bus'
+            ? '#D97706'
+            : '#2563EB';
+
+        // Outer glow polyline (Google Maps style)
+        const outerGlow = L.polyline([[stA.lat, stA.lng], [stB.lat, stB.lng]], {
+          color: isWalk ? '#3B82F6' : '#1E293B',
+          weight: isWalk ? 7 : 10,
+          opacity: 0.35,
+          dashArray: isWalk ? '6, 8' : undefined,
+        }).addTo(map);
+
+        // Core polyline
+        const corePoly = L.polyline([[stA.lat, stA.lng], [stB.lat, stB.lng]], {
+          color,
+          weight: isWalk ? 4.5 : 6.5,
+          opacity: 0.95,
+          dashArray: isWalk ? '5, 8' : undefined,
+        }).addTo(map);
+
+        routePolylinesRef.current.push(outerGlow);
+        routePolylinesRef.current.push(corePoly);
+      }
+    }
+
+    // Add Departure Marker (A - Green Pin)
+    const firstStep = activeRoute.steps[0];
+    const firstSt = stations.find((s) => s.id === firstStep?.stationId);
+    if (firstSt) {
+      const startIcon = L.divIcon({
+        html: `<div class="flex items-center justify-center bg-emerald-600 border-3 border-white rounded-full text-white font-black shadow-xl animate-bounce" style="width: 36px; height: 36px;">
+                 <span style="font-size: 14px;">📍</span>
+               </div>`,
+        className: 'start-marker-icon',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+      const startMarker = L.marker([firstSt.lat, firstSt.lng], { icon: startIcon, zIndexOffset: 2000 }).addTo(map);
+      startMarker.bindPopup(`<div class="p-1.5 font-bold text-xs text-emerald-800">🟢 Point de Départ : ${firstSt.name}</div>`);
+      startEndMarkersRef.current.push(startMarker);
+    }
+
+    // Add Destination Marker (B - Red Flag)
+    const lastStep = activeRoute.steps[activeRoute.steps.length - 1];
+    const lastSt = stations.find((s) => s.id === lastStep?.stationId);
+    if (lastSt) {
+      const endIcon = L.divIcon({
+        html: `<div class="flex items-center justify-center bg-rose-600 border-3 border-white rounded-full text-white font-black shadow-xl" style="width: 36px; height: 36px;">
+                 <span style="font-size: 14px;">🏁</span>
+               </div>`,
+        className: 'end-marker-icon',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+      const endMarker = L.marker([lastSt.lat, lastSt.lng], { icon: endIcon, zIndexOffset: 2000 }).addTo(map);
+      endMarker.bindPopup(`<div class="p-1.5 font-bold text-xs text-rose-800">🔴 Destination Arrivée : ${lastSt.name}</div>`);
+      startEndMarkersRef.current.push(endMarker);
+    }
+
+    // Fit map bounds to show complete route
+    if (routeCoords.length > 0) {
+      const bounds = L.latLngBounds(routeCoords);
+      map.fitBounds(bounds, { padding: [55, 55], maxZoom: 15 });
+    }
+  }, [activeRoute, stations]);
 
   // Handle selectedStation zoom/center pan
   useEffect(() => {

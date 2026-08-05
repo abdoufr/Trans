@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RouteResult, Station, TransportType } from '../types';
 import { Language, TRANSLATIONS } from '../translations';
-import { Navigation, ChevronRight, ChevronLeft, X, MapPin, Clock, CreditCard, CheckCircle2, Compass, AlertCircle } from 'lucide-react';
+import { Navigation, ChevronRight, ChevronLeft, X, MapPin, Clock, CreditCard, CheckCircle2, Compass, AlertCircle, Volume2, VolumeX } from 'lucide-react';
 
 interface LiveNavigationOverlayProps {
   route: RouteResult;
@@ -33,18 +33,29 @@ export default function LiveNavigationOverlay({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [userDistToStep, setUserDistToStep] = useState<number | null>(null);
   const [isGpsActive, setIsGpsActive] = useState(false);
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const t = TRANSLATIONS[lang] || TRANSLATIONS.fr;
 
   const currentStep = route.steps[currentStepIndex];
   const targetStation = stations.find((s) => s.id === currentStep?.stationId);
   const isArrived = currentStepIndex >= route.steps.length - 1;
 
-  // Sync step change to parent map
+  // Sync step change to parent map & speak turn-by-turn instruction
   useEffect(() => {
     if (currentStep) {
       onStepChange(currentStepIndex, currentStep.stationId);
+
+      // Voice guidance alert
+      if (!isVoiceMuted && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const textToSpeak = `${currentStep.instruction}`;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = lang === 'ar' || lang === 'dz' ? 'ar-SA' : 'fr-FR';
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
     }
-  }, [currentStepIndex, currentStep]);
+  }, [currentStepIndex, currentStep, isVoiceMuted, lang]);
 
   // GPS Watch Position for Turn-by-Turn auto-advancing
   useEffect(() => {
@@ -131,13 +142,33 @@ export default function LiveNavigationOverlay({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-slate-300 hover:text-white transition"
-            title={t.exitNavBtn}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const nextMuted = !isVoiceMuted;
+                setIsVoiceMuted(nextMuted);
+                if (nextMuted && 'speechSynthesis' in window) {
+                  window.speechSynthesis.cancel();
+                }
+              }}
+              className={`p-2 rounded-full transition ${
+                isVoiceMuted 
+                  ? 'bg-slate-800 text-slate-500 hover:text-slate-300' 
+                  : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+              }`}
+              title={isVoiceMuted ? 'Activer le guidage vocal' : 'Désactiver le guidage vocal'}
+            >
+              {isVoiceMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-slate-300 hover:text-white transition"
+              title={t.exitNavBtn}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Destination Arrival Card */}

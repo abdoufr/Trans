@@ -77,55 +77,58 @@ export async function initTursoDB() {
     `);
 
     // Seed Stations if table is empty
-    const stationsCheck = await turso.execute('SELECT COUNT(*) as count FROM stations;');
-    const stationCount = Number(stationsCheck.rows[0].count);
+    const chunkArray = <T>(arr: T[], size: number): T[][] => {
+      const result: T[][] = [];
+      for (let i = 0; i < arr.length; i += size) {
+        result.push(arr.slice(i, i + size));
+      }
+      return result;
+    };
 
-    if (stationCount === 0) {
-      console.log('[Turso DB] Seeding initial stations into Turso Database in batch...');
-      const stationBatch = STATIONS.map(s => ({
-        sql: `INSERT OR REPLACE INTO stations (id, name, name_ar, type, lat, lng, lines, connections, schedule)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        args: [
-          s.id,
-          s.name,
-          s.nameAr,
-          s.type,
-          s.lat,
-          s.lng,
-          JSON.stringify(s.lines),
-          JSON.stringify(s.connections),
-          JSON.stringify(s.schedule),
-        ],
-      }));
-      await turso.batch(stationBatch);
+    // Seed/Upsert Stations in batch
+    console.log('[Turso DB] Syncing stations into Turso Database in batch...');
+    const stationBatch = STATIONS.map(s => ({
+      sql: `INSERT OR REPLACE INTO stations (id, name, name_ar, type, lat, lng, lines, connections, schedule)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      args: [
+        s.id,
+        s.name,
+        s.nameAr,
+        s.type,
+        s.lat,
+        s.lng,
+        JSON.stringify(s.lines),
+        JSON.stringify(s.connections),
+        JSON.stringify(s.schedule),
+      ],
+    }));
+    for (const chunk of chunkArray(stationBatch, 25)) {
+      await turso.batch(chunk);
     }
 
-    // Seed Lines if table is empty
-    const linesCheck = await turso.execute('SELECT COUNT(*) as count FROM lines;');
-    const lineCount = Number(linesCheck.rows[0].count);
-
-    if (lineCount === 0) {
-      console.log('[Turso DB] Seeding initial lines into Turso Database in batch...');
-      const lineBatch = LINES.map(line => {
-        const excelMatch = EXCEL_TRANSIT_DATASET.find(e => e.lineId === line.id);
-        return {
-          sql: `INSERT OR REPLACE INTO lines (id, name, type, color, stations, terminus_a, terminus_b, tariff_da, frequency_min, operating_hours)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-          args: [
-            line.id,
-            line.name,
-            line.type,
-            line.color,
-            JSON.stringify(line.stations),
-            excelMatch?.terminusA || '',
-            excelMatch?.terminusB || '',
-            excelMatch?.tariffDa || 50,
-            excelMatch?.frequencyMin || 5,
-            excelMatch?.operatingHours || '05:30 - 23:00',
-          ],
-        };
-      });
-      await turso.batch(lineBatch);
+    // Seed/Upsert Lines in batch
+    console.log('[Turso DB] Syncing lines into Turso Database in batch...');
+    const lineBatch = LINES.map(line => {
+      const excelMatch = EXCEL_TRANSIT_DATASET.find(e => e.lineId === line.id);
+      return {
+        sql: `INSERT OR REPLACE INTO lines (id, name, type, color, stations, terminus_a, terminus_b, tariff_da, frequency_min, operating_hours)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        args: [
+          line.id,
+          line.name,
+          line.type,
+          line.color,
+          JSON.stringify(line.stations),
+          excelMatch?.terminusA || '',
+          excelMatch?.terminusB || '',
+          excelMatch?.tariffDa || 50,
+          excelMatch?.frequencyMin || 5,
+          excelMatch?.operatingHours || '05:30 - 23:00',
+        ],
+      };
+    });
+    for (const chunk of chunkArray(lineBatch, 25)) {
+      await turso.batch(chunk);
     }
 
     // Seed Perturbations if empty

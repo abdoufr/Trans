@@ -437,14 +437,13 @@ export default function App() {
               selectedLine={selectedLine}
               onSelectStation={(station) => {
                 setSelectedStation(station);
-                // Also load timetable tab so details are browseable!
-                setSelectedStation(station);
               }}
               onSelectLine={(line) => {
                 setSelectedLine(line);
               }}
               activeFilters={activeFilters}
               highlightedSteps={highlightedSteps}
+              activeRoute={activeRoute}
             />
           </div>
         </div>

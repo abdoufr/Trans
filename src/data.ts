@@ -1762,6 +1762,48 @@ export const LINES: LineData[] = [
     color: '#E65100',
     stations: ['b_ben_aknoun', 'b_baba_hassen', 'b_douera']
   },
+  {
+    id: 'bus_etusa_07',
+    name: 'Ligne ETUSA 07 (Place des Martyrs - Triolet - Notre Dame d\'Afrique)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'tel_nd_afrique']
+  },
+  {
+    id: 'bus_etusa_18',
+    name: 'Ligne ETUSA 18 (Tafourah - El Biar - Chevalley)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_tafourah', 'b_el_biar', 'b_chevalley']
+  },
+  {
+    id: 'bus_etusa_50',
+    name: 'Ligne ETUSA 50 (Tafourah - Ben Aknoun Express Autoroute)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_tafourah', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_87',
+    name: 'Ligne ETUSA 87 (Place des Martyrs - 1er Mai - Aïn Naâdja)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_martyrs', 'b_mai', 'm_ain_nadja_station']
+  },
+  {
+    id: 'bus_etusa_102',
+    name: 'Ligne ETUSA 102 (Ben Aknoun - Chéraga - Zéralda)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_ben_aknoun', 'b_cheraga', 'b_zeralda']
+  },
+  {
+    id: 'bus_etusa_104',
+    name: 'Ligne ETUSA 104 (Place des Martyrs - Birmandreis - Birkhadem)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_martyrs', 'b_birmandreis', 'b_birkhadem']
+  },
 
   // --- PRIVATE BUS LINES ("Bus Privés") ---
   {
@@ -1840,6 +1882,41 @@ export const LINES: LineData[] = [
     type: 'bus_priv',
     color: '#00ACC1',
     stations: ['bp_baraki', 'b_eucalyptus', 'b_bachdjerrah', 'bp_ruisseau']
+  },
+  {
+    id: 'bus_priv_p12',
+    name: 'Bus Privé P12 (Bordj El Kiffan - Bab Ezzouar - El Harrach)',
+    type: 'bus_priv',
+    color: '#00838F',
+    stations: ['tr_kiffan', 'bp_bab_ezzouar_centre', 'bp_harrach_centre']
+  },
+  {
+    id: 'bus_priv_p13',
+    name: 'Bus Privé P13 (Chevalley - Dely Ibrahim - Baba Hassen - Douera)',
+    type: 'bus_priv',
+    color: '#00ACC1',
+    stations: ['bp_chevalley', 'bp_dely_brahim', 'b_baba_hassen', 'b_douera']
+  },
+  {
+    id: 'bus_priv_p14',
+    name: 'Bus Privé P14 (Aïn Benian - Staouéli - Zéralda)',
+    type: 'bus_priv',
+    color: '#00B8D4',
+    stations: ['b_ain_benian', 'b_staoueli', 'b_zeralda']
+  },
+  {
+    id: 'bus_priv_p15',
+    name: 'Bus Privé P15 (Ben Aknoun - Birmandreis - Saoula)',
+    type: 'bus_priv',
+    color: '#0097A7',
+    stations: ['bp_ben_aknoun_gare', 'b_birmandreis', 'b_saoula']
+  },
+  {
+    id: 'bus_priv_p16',
+    name: 'Bus Privé P16 (Place des Martyrs - Triolet - Bouzaréah)',
+    type: 'bus_priv',
+    color: '#006064',
+    stations: ['bp_martyrs', 'bp_triolet', 'b_bouzareah']
   }
 ];
 

@@ -4,6 +4,7 @@ import { LINES } from '../data';
 import { computeRoute } from '../routeEngine';
 import { getStationName, getTransportModeName, formatStepInstruction, getLocalizedStopName } from '../utils/language';
 import { MapPin, Navigation, ArrowRightLeft, CreditCard, Clock, Star, AlertCircle, Share2, Sparkles, AlertTriangle, Compass, Target } from 'lucide-react';
+import StationSearchInput from './StationSearchInput';
 
 function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -209,50 +210,22 @@ export default function RoutePlanner({
         )}
       </div>
 
-      {/* Selectors */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-center relative">
-        <div className="md:col-span-2 relative">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block">
-              Départ
-            </label>
-            <button
-              type="button"
-              onClick={handleFindNearestStation}
-              disabled={isLocating}
-              className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded-md flex items-center gap-1 transition"
-            >
-              {isLocating ? (
-                <>
-                  <div className="w-2.5 h-2.5 border border-rose-600 border-t-transparent rounded-full animate-spin" />
-                  Localisation...
-                </>
-              ) : (
-                <>
-                  <Target className="w-3 h-3 text-rose-600 animate-pulse" />
-                  📍 Ma Station GPS
-                </>
-              )}
-            </button>
-          </div>
-          <div className="relative">
-            <select
-              value={originId}
-              onChange={(e) => {
-                setOriginId(e.target.value);
-                setNearestInfo(null);
-              }}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-xl py-3 pl-10 pr-4 text-sm font-medium focus:outline-none appearance-none"
-            >
-              <option value="">{t.selectStation}</option>
-              {sortedStations.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {getStationName(s, lang)} ({getTransportModeName(s.type, lang)})
-                </option>
-              ))}
-            </select>
-            <MapPin className="w-4 h-4 text-emerald-500 absolute left-3 top-3.5" />
-          </div>
+      <div className="grid md:grid-cols-5 gap-3 items-center">
+        <div className="md:col-span-2">
+          <StationSearchInput
+            label={t.originLabel}
+            placeholder={t.selectStation}
+            selectedStationId={originId}
+            stations={sortedStations}
+            lang={lang}
+            accentColor="emerald"
+            onSelectStation={(id) => {
+              setOriginId(id);
+              setNearestInfo(null);
+            }}
+            onUseCurrentLocation={handleFindNearestStation}
+            isLocating={isLocating}
+          />
         </div>
 
         {/* Swap Button */}
@@ -267,24 +240,15 @@ export default function RoutePlanner({
         </div>
 
         <div className="md:col-span-2">
-          <label className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 block mb-1">
-            {t.destLabel}
-          </label>
-          <div className="relative">
-            <select
-              value={destinationId}
-              onChange={(e) => setDestinationId(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 rounded-xl py-3 pl-10 pr-4 text-sm font-medium focus:outline-none appearance-none"
-            >
-              <option value="">{t.selectStation}</option>
-              {sortedStations.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {getStationName(s, lang)} ({getTransportModeName(s.type, lang)})
-                </option>
-              ))}
-            </select>
-            <MapPin className="w-4 h-4 text-rose-500 absolute left-3 top-3.5" />
-          </div>
+          <StationSearchInput
+            label={t.destLabel}
+            placeholder={t.selectStation}
+            selectedStationId={destinationId}
+            stations={sortedStations}
+            lang={lang}
+            accentColor="rose"
+            onSelectStation={(id) => setDestinationId(id)}
+          />
         </div>
       </div>
 
@@ -390,6 +354,43 @@ export default function RoutePlanner({
               <div className="font-black text-emerald-600 text-sm mt-0.5">
                 {routeResult.totalCost} DA
               </div>
+            </div>
+          </div>
+
+          {/* Google Maps Style Route Segment Visual Bar */}
+          <div className="bg-slate-100 p-3 rounded-2xl border border-slate-200/70 space-y-2">
+            <div className="text-[10px] uppercase font-black tracking-wider text-slate-400 flex items-center justify-between">
+              <span>Aperçu de la traversée Google Maps :</span>
+              <span className="text-slate-700 font-bold">{routeResult.totalDuration} min au total</span>
+            </div>
+            <div className="h-3.5 w-full bg-slate-200 rounded-full overflow-hidden flex gap-0.5 p-0.5 shadow-inner">
+              {routeResult.steps.map((step, idx) => {
+                if (step.duration === 0 && idx !== 0) return null;
+                const weight = Math.max(step.duration || 1, 2);
+                const modeBg =
+                  step.type === 'metro'
+                    ? 'bg-rose-500'
+                    : step.type === 'tram'
+                    ? 'bg-blue-500'
+                    : step.type === 'train'
+                    ? 'bg-emerald-500'
+                    : step.type === 'bus'
+                    ? 'bg-amber-500'
+                    : step.type === 'bus_priv'
+                    ? 'bg-cyan-500'
+                    : step.type === 'telepherique'
+                    ? 'bg-purple-500'
+                    : 'bg-slate-400';
+
+                return (
+                  <div
+                    key={idx}
+                    style={{ flexGrow: weight }}
+                    className={`${modeBg} h-full first:rounded-l-full last:rounded-r-full transition-all hover:brightness-110 cursor-pointer`}
+                    title={`${step.lineName || step.type}: ${step.duration} min`}
+                  />
+                );
+              })}
             </div>
           </div>
 
