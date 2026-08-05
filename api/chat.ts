@@ -1,6 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import { STATIONS, LINES } from '../src/data';
+import { computeRoute } from '../src/routeEngine';
+import { Station } from '../src/types';
 
 dotenv.config();
 
@@ -22,6 +25,40 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
   }
 }
 
+// Find stations in query text
+function detectStationsInQuery(text: string): { origin?: Station; destination?: Station } {
+  const lower = text.toLowerCase();
+  
+  // Sort stations by length descending so longer station names match first
+  const sorted = [...STATIONS].sort((a, b) => b.name.length - a.name.length);
+  
+  const matches: Station[] = [];
+  sorted.forEach((st) => {
+    const frName = st.name.toLowerCase();
+    const arName = st.nameAr ? st.nameAr.toLowerCase() : '';
+    if (lower.includes(frName) || (arName && lower.includes(arName))) {
+      if (!matches.some(m => m.id === st.id)) {
+        matches.push(st);
+      }
+    }
+  });
+
+  if (matches.length >= 2) {
+    // Try to determine order from string index
+    const idx0 = lower.indexOf(matches[0].name.toLowerCase());
+    const idx1 = lower.indexOf(matches[1].name.toLowerCase());
+    if (idx0 <= idx1) {
+      return { origin: matches[0], destination: matches[1] };
+    } else {
+      return { origin: matches[1], destination: matches[0] };
+    }
+  } else if (matches.length === 1) {
+    return { origin: matches[0] };
+  }
+
+  return {};
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -38,51 +75,97 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     let reply = '';
 
+    // Check if query is an origin -> destination route request
+    const detected = detectStationsInQuery(message);
+    let routeContext = '';
+
+    if (detected.origin && detected.destination) {
+      const calculatedRoute = computeRoute(STATIONS, LINES, detected.origin.id, detected.destination.id);
+      if (calculatedRoute) {
+        routeContext = `
+[Calcul d'itinéraire Dijkstra en temps réel] :
+- Départ : ${detected.origin.name} (${detected.origin.nameAr})
+- Arrivée : ${detected.destination.name} (${detected.destination.nameAr})
+- Durée estimée : ${calculatedRoute.totalDuration} min
+- Correspondances : ${calculatedRoute.transfers}
+- Tarif approximatif : ${calculatedRoute.totalCost} DA
+- Étapes :
+${calculatedRoute.steps.map((s, i) => `${i + 1}. [${s.type.toUpperCase()}] ${s.instruction} (${s.duration} min)`).join('\n')}
+`;
+      }
+    }
+
     if (ai) {
-      const systemInstruction = `Tu es "Kifach Nro7 AI" (كيفاش نروح AI), l'assistant IA officiel, intelligent et bienveillant de la plateforme de transport de la Wilaya d'Alger ("Kifach Nro7").
-Tu réponds en Français, en Arabe Algérien (Darija لهجة جزائرية) ou en Arabe selon la langue utilisée par l'utilisateur.
+      const systemInstruction = `Tu es "Kifach Nro7 AI" (كيفاش نروح AI), l'assistant IA officiel et expert ultime des transports en commun de la Wilaya d'Alger ("Kifach Nro7").
+Tu réponds dans la langue utilisée par l'utilisateur (Arabe Algérien / Darija لهجة جزائرية, Français ou Arabe classique).
 
-Tes connaissances d'expert sur le réseau d'Alger :
-1. MÉTRO D'ALGER (Ligne 1) : 19 stations de la Place des Martyrs jusqu'à El Harrach Gare, avec une extension vers Aïn Naâdja. Tarif : 50 DA. Horaires : 05:00 - 23:00. Correspondances principales : Ruisseau (Tramway T1) et El Harrach Gare (RER SNTF).
-2. TRAMWAY D'ALGER (Ligne T1) : Ruisseau (Les Fusillés) -> Dergana Centre (23.2 km, 38 stations via Bab Ezzouar, USTHB, Cité Zerhouni, Bordj El Kiffan). Tarif : 40 DA. Horaires : 05:30 - 23:30.
-3. TRAIN DE BANLIEUE SNTF (RER) :
-   - Ligne Est : Alger Gare / Agha -> Hussein Dey -> El Harrach -> Bab Ezzouar -> Réghaïa -> Thénia.
-   - Ligne Ouest : Alger -> Birtouta -> Zéralda.
-   - Navette Express Aéroport : Agha -> Bab Ezzouar -> Aéroport d'Alger Houari Boumediene.
-4. BUS ETUSA & BUS PRIVÉS :
-   - Grands hubs d'échanges : 1er Mai, Tafourah, Grande Poste / Audin, Ben Aknoun Gare Routière, Triolet / Bab El Oued, Chevalley, Chéraga.
-   - Lignes ETUSA célèbres : Ligne 07 (Martyrs - Notre Dame d'Afrique), Ligne 18 (Tafourah - El Biar - Chevalley), Ligne 104 (Martyrs - Birmandreis - Birkhadem), Ligne 634 (Tafourah - USTHB).
-5. TÉLÉPHÉRIQUES & TÉLÉCABINES : Notre Dame d'Afrique, Maqam Echahid (Mémorial du Martyr - Riadh El Feth), Palais du Peuple, Oued Koriche -> Bouzaréah, Bab El Oued -> Z'ghara.
+Tes connaissances du réseau d'Alger :
+1. MÉTRO : Place des Martyrs <-> El Harrach Gare & Aïn Naâdja (19 stations, 50 DA, 05h-23h).
+2. TRAMWAY T1 : Ruisseau (Les Fusillés) <-> Dergana Centre (23.2 km, 38 stations, 40 DA, 05h30-23h30).
+3. RER SNTF : Alger/Agha -> El Harrach -> Réghaïa -> Thénia / Zéralda / Express Aéroport Houari Boumediene.
+4. BUS ETUSA & PRIVÉS : Hubs 1er Mai, Tafourah, Audin, Ben Aknoun, Triolet, Chevalley, Chéraga.
+5. TÉLÉPHÉRIQUES : Notre Dame d'Afrique, Maqam Echahid, Palais du Peuple, Bouzaréah, Z'ghara.
 
-Instructions :
-- Sois court, précis, bienveillant et structuré avec des puces et des émojis.
-- Si l'utilisateur demande comment aller d'un lieu A à un lieu B, donne-lui les lignes précises à prendre et les correspondances.`;
+Règles de réponse :
+- Si un calcul d'itinéraire en temps réel est fourni dans le prompt, sers-t'en pour donner une réponse ultra précise étape par étape.
+- Sois très clair, chaleureux, bienveillant, utilise des émojis et une présentation aérée.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: [
-          { text: systemInstruction },
-          ...(chatHistory || []).map((h: any) => ({
-            text: `${h.sender === 'user' ? 'User' : 'Assistant'}: ${h.text}`,
-          })),
-          { text: `User: ${message}` },
-        ],
-      });
+      const promptContent = routeContext 
+        ? `${systemInstruction}\n\nContexte d'itinéraire détecté :\n${routeContext}\n\nQuestion utilisateur : ${message}`
+        : `${systemInstruction}\n\nQuestion utilisateur : ${message}`;
 
-      reply = response.text || "Désolé, je rencontre des difficultés à formuler une réponse.";
-    } else {
-      // Smart offline fallback engine
-      const lower = message.toLowerCase();
-      if (lower.includes('métro') || lower.includes('metro')) {
-        reply = "🚇 **Métro d'Alger** : 19 stations reliées de la **Place des Martyrs** à **El Harrach Gare** (avec branche vers Aïn Naâdja). Ticket : 50 DA. Horaires : 05h00 - 23h00.";
-      } else if (lower.includes('tram') || lower.includes('tramway')) {
-        reply = "🚊 **Tramway T1** : Relié de **Ruisseau (Les Fusillés)** à **Dergana Centre** via l'USTHB et Bab Ezzouar (23 km, 38 stations). Ticket : 40 DA. Horaires : 05h30 - 23h30.";
-      } else if (lower.includes('tarif') || lower.includes('prix') || lower.includes('ticket')) {
-        reply = "🎫 **Tarifs 2026** : Métro (50 DA), Tramway (40 DA), Bus ETUSA (20-30 DA), RER SNTF Banlieue (à partir de 40 DA).";
-      } else if (lower.includes('aéroport') || lower.includes('aeroport') || lower.includes('matar')) {
-        reply = "✈️ **Navette Aéroport Houari Boumediene** : Prenez le train RER SNTF Express depuis **Agha / Alger Gare** ou le bus ETUSA depuis la station **1er Mai** / **Tafourah**.";
-      } else {
-        reply = "👋 Marhaban ! Je suis **Kifach Nro7 AI** (كيفاش نروح AI). Posez-moi toutes vos questions sur les lignes de métro, tramway, RER SNTF, téléphériques ou bus à Alger !";
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: [
+            ...(chatHistory || []).map((h: any) => ({
+              text: `${h.sender === 'user' ? 'User' : 'Assistant'}: ${h.text}`,
+            })),
+            { text: promptContent },
+          ],
+        });
+        reply = response.text || '';
+      } catch (geminiError) {
+        console.warn('Gemini 2.5 flash failed, retrying with gemini-1.5-flash:', geminiError);
+        try {
+          const response15 = await ai.models.generateContent({
+            model: 'gemini-1.5-flash',
+            contents: promptContent,
+          });
+          reply = response15.text || '';
+        } catch (err2) {
+          console.error('All Gemini models failed:', err2);
+        }
+      }
+    }
+
+    // Fallback if AI not available or Gemini error
+    if (!reply) {
+      if (detected.origin && detected.destination) {
+        const calculatedRoute = computeRoute(STATIONS, LINES, detected.origin.id, detected.destination.id);
+        if (calculatedRoute) {
+          reply = `🗺️ **Itinéraire de ${detected.origin.name} vers ${detected.destination.name}** :\n\n` +
+            `⏱️ **Durée** : ~${calculatedRoute.totalDuration} min | 💰 **Tarif** : ~${calculatedRoute.totalCost} DA | 🔄 **Changements** : ${calculatedRoute.transfers}\n\n` +
+            `**Feuille de route** :\n` +
+            calculatedRoute.steps.map((s, i) => `${i + 1}. **[${s.type.toUpperCase()}]** ${s.instruction}`).join('\n\n');
+        }
+      }
+
+      if (!reply) {
+        const lower = message.toLowerCase();
+        if (lower.includes('métro') || lower.includes('metro')) {
+          reply = "🚇 **Métro d'Alger (Ligne 1)** :\n- **Parcours** : Place des Martyrs ↔ El Harrach Gare (branche Aïn Naâdja).\n- **Tarif** : 50 DA.\n- **Horaires** : 05:00 - 23:00 (Fréquence : 4 min aux heures de pointe).";
+        } else if (lower.includes('tram') || lower.includes('tramway')) {
+          reply = "🚊 **Tramway d'Alger (T1)** :\n- **Parcours** : Ruisseau (Les Fusillés) ↔ Dergana Centre (via USTHB & Bab Ezzouar).\n- **Tarif** : 40 DA.\n- **Horaires** : 05:30 - 23:30 (Fréquence : 6 min).";
+        } else if (lower.includes('aéroport') || lower.includes('aeroport') || lower.includes('matar')) {
+          reply = "✈️ **Aller à l'Aéroport Houari Boumediene** :\n1. **Train RER SNTF Express** depuis les gares **Agha** ou **Alger Gare**.\n2. **Bus ETUSA Ligne Aéroport** depuis la gare routière **1er Mai** ou **Tafourah**.";
+        } else if (lower.includes('tarif') || lower.includes('prix') || lower.includes('ticket')) {
+          reply = "🎫 **Grille Tarifaire 2026** :\n- Métro : 50 DA\n- Tramway : 40 DA\n- Bus ETUSA : 20 - 30 DA\n- Train RER SNTF Banlieue : à partir de 40 DA\n- Téléphérique : 30 - 50 DA";
+        } else if (detected.origin) {
+          reply = `📍 Station détectée : **${detected.origin.name}** (${detected.origin.nameAr}). Desservie par les lignes : **${detected.origin.lines.join(', ')}**. Indiquez votre destination pour calculer le trajet !`;
+        } else {
+          reply = "👋 Marhaban ! Je suis **Kifach Nro7 AI** (كيفاش نروح AI).\nPosez-moi vos questions sur n'importe quel trajet à Alger (ex: *Kifach nro7 mn Tafourah l USTHB ?*), les horaires ou les tarifs !";
+        }
       }
     }
 
@@ -90,7 +173,7 @@ Instructions :
   } catch (err: any) {
     console.error('[api/chat] Error:', err);
     return res.status(500).json({
-      reply: "Bienvenue sur **Kifach Nro7 AI** (كيفاش نروح AI) ! Posez vos questions sur les horaires, itinéraires ou tarifs des transports d'Alger.",
+      reply: "Marhaban ! Je suis **Kifach Nro7 AI** (كيفاش نروح AI). Posez-moi votre question sur les transports d'Alger !",
     });
   }
 }
