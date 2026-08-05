@@ -12,6 +12,8 @@ interface InteractiveMapProps {
   activeFilters: Record<TransportType, boolean>;
   highlightedSteps: string[]; // List of station IDs in the current route
   activeRoute?: RouteResult | null;
+  mapCenter?: [number, number];
+  mapZoom?: number;
 }
 
 export default function InteractiveMap({
@@ -24,6 +26,8 @@ export default function InteractiveMap({
   activeFilters,
   highlightedSteps,
   activeRoute,
+  mapCenter = [36.7538, 3.0588],
+  mapZoom = 12,
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -143,6 +147,13 @@ export default function InteractiveMap({
       }
     };
   }, []);
+
+  // Pan to new map center when Wilaya changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapCenter) return;
+    map.flyTo(mapCenter, mapZoom, { duration: 1.2 });
+  }, [mapCenter, mapZoom]);
 
   // Sync Markers and Lines
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { Station, LineData, Disruption } from './types';
+import { NATIONAL_STATIONS, NATIONAL_LINES } from './data_national';
 
-export const STATIONS: Station[] = [
+const ALGIERS_STATIONS: Station[] = [
   // --- METRO LINE 1 & BRANCHES ---
   {
     id: 'm_martyrs',
@@ -1437,7 +1438,7 @@ export const STATIONS: Station[] = [
   }
 ];
 
-export const LINES: LineData[] = [
+const ALGIERS_LINES: LineData[] = [
   // --- METRO D'ALGER ---
   {
     id: 'metro_m1',
@@ -2150,4 +2151,14 @@ export const INITIAL_DISRUPTIONS: Disruption[] = [
     timestamp: '2026-08-04T08:15:00Z',
     active: true
   }
+];
+
+export const STATIONS: Station[] = [
+  ...ALGIERS_STATIONS.map(s => ({ ...s, wilayaCode: s.wilayaCode || 16, wilayaName: s.wilayaName || 'Alger' })),
+  ...NATIONAL_STATIONS
+];
+
+export const LINES: LineData[] = [
+  ...ALGIERS_LINES.map(l => ({ ...l, wilayaCode: l.wilayaCode || 16, wilayaName: l.wilayaName || 'Alger' })),
+  ...NATIONAL_LINES
 ];

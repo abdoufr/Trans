@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Station, LineData, Disruption, SavedRoute, RouteResult, TransportType } from './types';
 import { STATIONS, LINES, INITIAL_DISRUPTIONS } from './data';
+import { ALGERIA_WILAYAS, WilayaConfig } from './data_national';
 import InteractiveMap from './components/InteractiveMap';
 import BahdjaGuideChat from './components/BahdjaGuideChat';
 import RoutePlanner from './components/RoutePlanner';
@@ -9,7 +10,7 @@ import OfflineTimetables from './components/OfflineTimetables';
 import LiveNavigationOverlay from './components/LiveNavigationOverlay';
 import DirectLinesTable from './components/DirectLinesTable';
 import { Language, TRANSLATIONS } from './translations';
-import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight, Languages, Route } from 'lucide-react';
+import { Map, Navigation, BellRing, CalendarDays, Star, Train, Info, ShieldAlert, Sparkles, Clock, Globe, Moon, Sun, ArrowRight, Languages, Route, MapPin } from 'lucide-react';
 
 export default function App() {
   // State variables
@@ -18,6 +19,7 @@ export default function App() {
   });
   const t = TRANSLATIONS[lang] || TRANSLATIONS.fr;
 
+  const [selectedWilayaCode, setSelectedWilayaCode] = useState<number>(16);
   const [stations, setStations] = useState<Station[]>(STATIONS);
   const [lines] = useState<LineData[]>(LINES);
   const [disruptions, setDisruptions] = useState<Disruption[]>(INITIAL_DISRUPTIONS);
@@ -170,6 +172,10 @@ export default function App() {
     }));
   };
 
+  const selectedWilaya = ALGERIA_WILAYAS.find(w => w.code === selectedWilayaCode) || ALGERIA_WILAYAS[0];
+  const displayedStations = stations.filter(s => !s.wilayaCode || s.wilayaCode === selectedWilayaCode);
+  const displayedLines = lines.filter(l => !l.wilayaCode || l.wilayaCode === selectedWilayaCode);
+
   const isRtl = lang === 'ar' || lang === 'dz';
 
   return (
@@ -192,8 +198,30 @@ export default function App() {
             </div>
           </div>
 
-          {/* Real-time status bar & Language switcher */}
+          {/* Real-time status bar, Wilaya selector & Language switcher */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+            {/* Wilaya Dropdown Selector */}
+            <div className="flex items-center bg-rose-50 p-1 rounded-xl border border-rose-200/80 shadow-2xs">
+              <MapPin className="w-3.5 h-3.5 text-rose-600 mx-1.5" />
+              <select
+                value={selectedWilayaCode}
+                onChange={(e) => {
+                  const code = Number(e.target.value);
+                  setSelectedWilayaCode(code);
+                  setSelectedStation(null);
+                  setSelectedLine(null);
+                  setActiveRoute(null);
+                }}
+                className="bg-transparent text-xs font-black text-rose-700 py-1 pr-2 focus:outline-none cursor-pointer"
+              >
+                {ALGERIA_WILAYAS.map(w => (
+                  <option key={w.code} value={w.code}>
+                    {w.code} - {lang === 'ar' || lang === 'dz' ? w.nameAr : w.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Language Dropdown Selector */}
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/60 shadow-2xs">
               <Languages className="w-3.5 h-3.5 text-slate-500 mx-1.5" />
@@ -217,7 +245,7 @@ export default function App() {
             <div className="bg-slate-100 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-slate-200/40">
               <Clock className="w-3.5 h-3.5 text-slate-500 animate-pulse" />
               <span className="text-xs font-bold text-slate-700 font-mono">
-                Alger : {algiersTime || '08:00'}
+                {algiersTime || '08:00'}
               </span>
             </div>
 
@@ -301,14 +329,14 @@ export default function App() {
           <div className="flex-1">
             {activeTab === 'route' && (
               <RoutePlanner
-                stations={stations}
-                lines={lines}
+                stations={displayedStations}
+                lines={displayedLines}
                 lang={lang}
                 onRouteCalculated={handleRouteCalculated}
                 onSaveRoute={handleSaveRoute}
                 savedRoutes={savedRoutes}
                 onLoadSavedRoute={(oId, dId) => {
-                  const orig = stations.find(s => s.id === oId);
+                  const orig = displayedStations.find(s => s.id === oId);
                   if (orig) setSelectedStation(orig);
                 }}
                 onStartNavigation={(route) => {
@@ -320,8 +348,8 @@ export default function App() {
 
             {activeTab === 'lines' && (
               <DirectLinesTable
-                lines={lines}
-                stations={stations}
+                lines={displayedLines}
+                stations={displayedStations}
                 lang={lang}
                 onSelectLine={(line) => setSelectedLine(line)}
                 onSelectStation={(station) => setSelectedStation(station)}
@@ -330,7 +358,7 @@ export default function App() {
 
             {activeTab === 'timetable' && (
               <OfflineTimetables
-                stations={stations}
+                stations={displayedStations}
                 onSelectStation={(station) => {
                   setSelectedStation(station);
                 }}
@@ -340,43 +368,34 @@ export default function App() {
             {activeTab === 'alerts' && (
               <DisruptionAlerts
                 disruptions={disruptions}
+                stations={displayedStations}
                 onAddDisruption={handleAddDisruption}
-                stations={stations}
               />
             )}
 
             {activeTab === 'favorites' && (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
-                <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                  <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-                  Trajets Récurrents Favoris
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Enregistrez vos trajets de navette quotidienne pour consulter instantanément les correspondances et temps d'attente en un clic.
-                </p>
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  <h3 className="font-extrabold text-slate-800 text-base">{t.tabFavorites}</h3>
+                </div>
 
                 {savedRoutes.length === 0 ? (
-                  <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-xl text-slate-400 text-xs">
-                    Aucun trajet favori enregistré pour le moment.
-                  </div>
+                  <p className="text-xs text-slate-500 italic py-4 text-center">
+                    {t.noFavorites}
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {savedRoutes.map((route) => (
                       <div
                         key={route.id}
-                        className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-rose-50/20 hover:border-rose-100 transition flex items-center justify-between"
+                        className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200/60 rounded-xl hover:border-rose-200 hover:bg-rose-50/30 transition cursor-pointer"
                       >
                         <button
                           onClick={() => {
-                            // Load route
                             setActiveTab('route');
-                            // Trigger callback on loaded path
                             setTimeout(() => {
-                              const routeSelector = document.querySelector('select');
-                              if (routeSelector) {
-                                // Simulate click / load inside planner
-                                const plannerButton = document.querySelector('button[disabled]');
-                              }
+                              handleRouteCalculated(null, route.originId, route.destinationId);
                             }, 100);
                           }}
                           className="flex-1 text-left"
@@ -431,8 +450,8 @@ export default function App() {
 
           <div className="flex-1 min-h-[480px]">
             <InteractiveMap
-              stations={stations}
-              lines={lines}
+              stations={displayedStations}
+              lines={displayedLines}
               selectedStation={selectedStation}
               selectedLine={selectedLine}
               onSelectStation={(station) => {
@@ -444,6 +463,8 @@ export default function App() {
               activeFilters={activeFilters}
               highlightedSteps={highlightedSteps}
               activeRoute={activeRoute}
+              mapCenter={[selectedWilaya.lat, selectedWilaya.lng]}
+              mapZoom={selectedWilaya.zoom}
             />
           </div>
         </div>

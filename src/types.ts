@@ -16,6 +16,8 @@ export interface Station {
     frequencyOffPeak: number; // in minutes
   };
   liveWaitTime?: number; // Simulated waiting countdown in minutes
+  wilayaCode?: number;
+  wilayaName?: string;
 }
 
 export interface LineData {
@@ -24,6 +26,8 @@ export interface LineData {
   type: TransportType;
   color: string;
   stations: string[]; // Station IDs in order
+  wilayaCode?: number;
+  wilayaName?: string;
 }
 
 export interface Disruption {
