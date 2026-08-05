@@ -198,10 +198,18 @@ Génère un court conseil de voyage de 3-4 lignes en français, chaleureux et pr
     try {
       let reply = '';
 
-      // Station detection helper with clean name matching
-      const cleanName = (name: string): string => {
-        return name
+      // Station detection helper with accent removal & keyword aliases
+      const removeAccents = (str: string): string => {
+        return str
           .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .trim();
+      };
+
+      const cleanName = (name: string): string => {
+        const norm = removeAccents(name);
+        return norm
           .replace(/^station etusa\s+/i, '')
           .replace(/^gare sntf\s+/i, '')
           .replace(/^téléphérique\s+/i, '')
@@ -210,28 +218,71 @@ Génère un court conseil de voyage de 3-4 lignes en français, chaleureux et pr
           .replace(/\s+centre$/i, '')
           .replace(/\s+ville$/i, '')
           .replace(/\s+terminus$/i, '')
+          .replace(/\s+gare$/i, '')
           .trim();
       };
 
-      const lower = message.toLowerCase();
+      const ALIASES: Record<string, string[]> = {
+        't_boumerdes': ['boumerdes', 'boumerdas', 'bomerdas', 'bomerdes'],
+        'b_birkhadem': ['birkhadem', 'bir khadem', 'birkadem'],
+        't_birtouta': ['birtouta', 'bir touta', 'birtuta'],
+        'b_birtouta_ville': ['birtouta', 'bir touta'],
+        'b_tafourah': ['tafourah', 'tafoura', 'grande poste', 'post'],
+        'm_martyrs': ['martyrs', 'شهداء', 'place des martyrs', 'place martyrs'],
+        'm_mai': ['1er mai', 'premier mai', '1 mai', 'أول ماي'],
+        'b_mai': ['1er mai', 'premier mai'],
+        'bp_bab_ezzouar_fac': ['usthb', 'fac bab ezzouar', 'bab ezzouar fac', 'université bab ezzouar'],
+        'b_cheraga': ['cheraga', 'chraga', 'شراقة'],
+        'b_zeralda': ['zeralda', 'zralda', 'زرالدة'],
+        't_reghaia': ['reghaia', 'rghaia', 'رغاية'],
+        'm_ruisseau': ['ruisseau', 'les fusilles', 'fusilles', 'عناصر'],
+        'b_chevalley': ['chevalley', 'chavali'],
+        'b_ben_aknoun': ['ben aknoun', 'benaknoun'],
+        't_alger': ['alger gare', 'gare centrale', 'alger centre'],
+        't_agha': ['agha'],
+        'b_aeroport': ['aeroport', 'matar', 'aeroport d\'alger', 'houari boumediene'],
+        't_aeroport': ['aeroport', 'matar'],
+        'b_ain_benian': ['ain benian'],
+        'm_ain_nadja_station': ['ain naadja', 'ain nadja', 'عين النعجة'],
+        'b_kouba': ['kouba', 'قبة'],
+      };
+
+      const normText = removeAccents(message);
       const matchesObj: { station: Station; index: number; matchedLength: number }[] = [];
 
+      // 1. Alias Matching
+      for (const [stId, keywords] of Object.entries(ALIASES)) {
+        const st = STATIONS.find(s => s.id === stId);
+        if (!st) continue;
+        for (const kw of keywords) {
+          const normKw = removeAccents(kw);
+          if (normText.includes(normKw)) {
+            const idx = normText.indexOf(normKw);
+            if (!matchesObj.some(m => m.station.id === st.id)) {
+              matchesObj.push({ station: st, index: idx, matchedLength: normKw.length });
+            }
+            break;
+          }
+        }
+      }
+
+      // 2. Direct Station Name & Arabic Name Matching
       STATIONS.forEach((st) => {
-        const rawFr = st.name.toLowerCase();
+        const rawFr = removeAccents(st.name);
         const cleanFr = cleanName(st.name);
         const arName = st.nameAr ? st.nameAr.toLowerCase() : '';
 
         let foundIdx = -1;
         let matchLen = 0;
 
-        if (cleanFr.length >= 3 && lower.includes(cleanFr)) {
-          foundIdx = lower.indexOf(cleanFr);
+        if (cleanFr.length >= 3 && normText.includes(cleanFr)) {
+          foundIdx = normText.indexOf(cleanFr);
           matchLen = cleanFr.length;
-        } else if (lower.includes(rawFr)) {
-          foundIdx = lower.indexOf(rawFr);
+        } else if (rawFr.length >= 3 && normText.includes(rawFr)) {
+          foundIdx = normText.indexOf(rawFr);
           matchLen = rawFr.length;
-        } else if (arName && lower.includes(arName)) {
-          foundIdx = lower.indexOf(arName);
+        } else if (arName && message.toLowerCase().includes(arName)) {
+          foundIdx = message.toLowerCase().indexOf(arName);
           matchLen = arName.length;
         }
 
@@ -323,13 +374,13 @@ Règles de réponse :
         }
 
         if (!reply) {
-          if (lower.includes('métro') || lower.includes('metro')) {
+          if (normText.includes('metro')) {
             reply = "🚇 **Métro d'Alger (Ligne 1)** :\n- **Parcours** : Place des Martyrs ↔ El Harrach Gare (branche Aïn Naâdja).\n- **Tarif** : 50 DA.\n- **Horaires** : 05:00 - 23:00 (Fréquence : 4 min aux heures de pointe).";
-          } else if (lower.includes('tram') || lower.includes('tramway')) {
+          } else if (normText.includes('tram')) {
             reply = "🚊 **Tramway d'Alger (T1)** :\n- **Parcours** : Ruisseau (Les Fusillés) ↔ Dergana Centre (via USTHB & Bab Ezzouar).\n- **Tarif** : 40 DA.\n- **Horaires** : 05:30 - 23:30 (Fréquence : 6 min).";
-          } else if (lower.includes('aéroport') || lower.includes('aeroport') || lower.includes('matar')) {
+          } else if (normText.includes('aeroport') || normText.includes('matar')) {
             reply = "✈️ **Aller à l'Aéroport Houari Boumediene** :\n1. **Train RER SNTF Express** depuis les gares **Agha** ou **Alger Gare**.\n2. **Bus ETUSA Ligne Aéroport** depuis la gare routière **1er Mai** ou **Tafourah**.";
-          } else if (lower.includes('tarif') || lower.includes('prix') || lower.includes('ticket')) {
+          } else if (normText.includes('tarif') || normText.includes('prix') || normText.includes('ticket')) {
             reply = "🎫 **Grille Tarifaire 2026** :\n- Métro : 50 DA\n- Tramway : 40 DA\n- Bus ETUSA : 20 - 30 DA\n- Train RER SNTF Banlieue : à partir de 40 DA\n- Téléphérique : 30 - 50 DA";
           } else if (matches.length === 1) {
             reply = `📍 Station détectée : **${matches[0].name}** (${matches[0].nameAr}). Desservie par les lignes : **${matches[0].lines.join(', ')}**. Indiquez votre destination pour calculer le trajet !`;

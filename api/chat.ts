@@ -25,9 +25,17 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
   }
 }
 
-function cleanName(name: string): string {
-  return name
+function removeAccents(str: string): string {
+  return str
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function cleanName(name: string): string {
+  const norm = removeAccents(name);
+  return norm
     .replace(/^station etusa\s+/i, '')
     .replace(/^gare sntf\s+/i, '')
     .replace(/^téléphérique\s+/i, '')
@@ -36,29 +44,73 @@ function cleanName(name: string): string {
     .replace(/\s+centre$/i, '')
     .replace(/\s+ville$/i, '')
     .replace(/\s+terminus$/i, '')
+    .replace(/\s+gare$/i, '')
     .trim();
 }
 
+// Popular station keyword aliases for quick matching in Darija/French
+const ALIASES: Record<string, string[]> = {
+  't_boumerdes': ['boumerdes', 'boumerdas', 'bomerdas', 'bomerdes'],
+  'b_birkhadem': ['birkhadem', 'bir khadem', 'birkadem'],
+  't_birtouta': ['birtouta', 'bir touta', 'birtuta'],
+  'b_birtouta_ville': ['birtouta', 'bir touta'],
+  'b_tafourah': ['tafourah', 'tafoura', 'grande poste', 'post'],
+  'm_martyrs': ['martyrs', 'شهداء', 'place des martyrs', 'place martyrs'],
+  'm_mai': ['1er mai', 'premier mai', '1 mai', 'أول ماي'],
+  'b_mai': ['1er mai', 'premier mai'],
+  'bp_bab_ezzouar_fac': ['usthb', 'fac bab ezzouar', 'bab ezzouar fac', 'université bab ezzouar'],
+  'b_cheraga': ['cheraga', 'chraga', 'شراقة'],
+  'b_zeralda': ['zeralda', 'zralda', 'زرالدة'],
+  't_reghaia': ['reghaia', 'rghaia', 'رغاية'],
+  'm_ruisseau': ['ruisseau', 'les fusilles', 'fusilles', 'عناصر'],
+  'b_chevalley': ['chevalley', 'chavali'],
+  'b_ben_aknoun': ['ben aknoun', 'benaknoun'],
+  't_alger': ['alger gare', 'gare centrale', 'alger centre'],
+  't_agha': ['agha'],
+  'b_aeroport': ['aeroport', 'matar', 'aeroport d\'alger', 'houari boumediene'],
+  't_aeroport': ['aeroport', 'matar'],
+  'b_ain_benian': ['ain benian', 'ain benian'],
+  'm_ain_nadja_station': ['ain naadja', 'ain nadja', 'عين النعجة'],
+  'b_kouba': ['kouba', 'قبة'],
+};
+
 function detectStationsInQuery(text: string): { origin?: Station; destination?: Station } {
-  const lower = text.toLowerCase();
+  const normText = removeAccents(text);
   const matches: { station: Station; index: number; matchedLength: number }[] = [];
 
+  // 1. Alias Matching
+  for (const [stId, keywords] of Object.entries(ALIASES)) {
+    const st = STATIONS.find(s => s.id === stId);
+    if (!st) continue;
+    for (const kw of keywords) {
+      const normKw = removeAccents(kw);
+      if (normText.includes(normKw)) {
+        const idx = normText.indexOf(normKw);
+        if (!matches.some(m => m.station.id === st.id)) {
+          matches.push({ station: st, index: idx, matchedLength: normKw.length });
+        }
+        break;
+      }
+    }
+  }
+
+  // 2. Direct Station Name & Arabic Name Matching
   STATIONS.forEach((st) => {
-    const rawFr = st.name.toLowerCase();
+    const rawFr = removeAccents(st.name);
     const cleanFr = cleanName(st.name);
     const arName = st.nameAr ? st.nameAr.toLowerCase() : '';
 
     let foundIdx = -1;
     let matchLen = 0;
 
-    if (cleanFr.length >= 3 && lower.includes(cleanFr)) {
-      foundIdx = lower.indexOf(cleanFr);
+    if (cleanFr.length >= 3 && normText.includes(cleanFr)) {
+      foundIdx = normText.indexOf(cleanFr);
       matchLen = cleanFr.length;
-    } else if (lower.includes(rawFr)) {
-      foundIdx = lower.indexOf(rawFr);
+    } else if (rawFr.length >= 3 && normText.includes(rawFr)) {
+      foundIdx = normText.indexOf(rawFr);
       matchLen = rawFr.length;
-    } else if (arName && lower.includes(arName)) {
-      foundIdx = lower.indexOf(arName);
+    } else if (arName && text.toLowerCase().includes(arName)) {
+      foundIdx = text.toLowerCase().indexOf(arName);
       matchLen = arName.length;
     }
 
@@ -121,7 +173,7 @@ Tu réponds dans la langue utilisée par l'utilisateur (Arabe Algérien / Darija
 Tes connaissances du réseau d'Alger :
 1. MÉTRO : Place des Martyrs <-> El Harrach Gare & Aïn Naâdja (19 stations, 50 DA, 05h-23h).
 2. TRAMWAY T1 : Ruisseau (Les Fusillés) <-> Dergana Centre (23.2 km, 38 stations, 40 DA, 05h30-23h30).
-3. RER SNTF : Alger/Agha -> El Harrach -> Réghaïa -> Thénia / Zéralda / Express Aéroport Houari Boumediene / Birtouta / Blida.
+3. RER SNTF : Alger/Agha -> El Harrach -> Réghaïa -> Thénia / Boumerdès / Zéralda / Express Aéroport Houari Boumediene / Birtouta / Blida.
 4. BUS ETUSA & PRIVÉS : Hubs 1er Mai, Tafourah, Audin, Ben Aknoun, Triolet, Chevalley, Chéraga, Birkhadem, Saoula, Birtouta.
 5. TÉLÉPHÉRIQUES : Notre Dame d'Afrique, Maqam Echahid, Palais du Peuple, Bouzaréah, Z'ghara.
 
@@ -171,19 +223,19 @@ Règles de réponse :
       }
 
       if (!reply) {
-        const lower = message.toLowerCase();
-        if (lower.includes('métro') || lower.includes('metro')) {
+        const lower = removeAccents(message);
+        if (lower.includes('metro')) {
           reply = "🚇 **Métro d'Alger (Ligne 1)** :\n- **Parcours** : Place des Martyrs ↔ El Harrach Gare (branche Aïn Naâdja).\n- **Tarif** : 50 DA.\n- **Horaires** : 05:00 - 23:00 (Fréquence : 4 min aux heures de pointe).";
         } else if (lower.includes('tram') || lower.includes('tramway')) {
           reply = "🚊 **Tramway d'Alger (T1)** :\n- **Parcours** : Ruisseau (Les Fusillés) ↔ Dergana Centre (via USTHB & Bab Ezzouar).\n- **Tarif** : 40 DA.\n- **Horaires** : 05:30 - 23:30 (Fréquence : 6 min).";
-        } else if (lower.includes('aéroport') || lower.includes('aeroport') || lower.includes('matar')) {
+        } else if (lower.includes('aeroport') || lower.includes('matar')) {
           reply = "✈️ **Aller à l'Aéroport Houari Boumediene** :\n1. **Train RER SNTF Express** depuis **Agha** ou **Alger Gare**.\n2. **Bus ETUSA Ligne Aéroport** depuis la gare routière **1er Mai** ou **Tafourah**.";
         } else if (lower.includes('tarif') || lower.includes('prix') || lower.includes('ticket')) {
           reply = "🎫 **Grille Tarifaire 2026** :\n- Métro : 50 DA\n- Tramway : 40 DA\n- Bus ETUSA : 20 - 30 DA\n- Train RER SNTF Banlieue : à partir de 40 DA\n- Téléphérique : 30 - 50 DA";
         } else if (detected.origin) {
-          reply = `📍 Station détectée : **${detected.origin.name}** (${detected.origin.nameAr}). Desservie par les lignes : **${detected.origin.lines.join(', ')}**. Indiquez votre destination pour calculer le trajet !`;
+          reply = `📍 Station détectée : **${detected.origin.name}** (${detected.origin.nameAr}).\nVeuillez préciser votre destination (ex: *Boumerdès, USTHB, Tafourah, 1er Mai, Zéralda...*) pour calculer le trajet précis !`;
         } else {
-          reply = "👋 Marhaban ! Je suis **Kifach Nro7 AI** (كيفاش نروح AI).\nPosez-moi n'importe quelle question de trajet à Alger (ex: *kifach nroh mn birkhadem l birtouta* ou *kifach nroh mn tafourah l usthb*), les horaires ou les tarifs !";
+          reply = "👋 Marhaban ! Je suis **Kifach Nro7 AI** (كيفاش نروح AI).\nPosez-moi votre question de trajet à Alger (ex: *kifach nroh mn birkhadem l boumerdes* ou *kifach nroh mn tafourah l usthb*), les horaires ou les tarifs !";
         }
       }
     }
