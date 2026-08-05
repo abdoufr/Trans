@@ -198,26 +198,57 @@ Génère un court conseil de voyage de 3-4 lignes en français, chaleureux et pr
     try {
       let reply = '';
 
-      // Station detection helper
+      // Station detection helper with clean name matching
+      const cleanName = (name: string): string => {
+        return name
+          .toLowerCase()
+          .replace(/^station etusa\s+/i, '')
+          .replace(/^gare sntf\s+/i, '')
+          .replace(/^téléphérique\s+/i, '')
+          .replace(/^télécabine\s+/i, '')
+          .replace(/\s*\([^)]*\)/g, '')
+          .replace(/\s+centre$/i, '')
+          .replace(/\s+ville$/i, '')
+          .replace(/\s+terminus$/i, '')
+          .trim();
+      };
+
       const lower = message.toLowerCase();
-      const sortedStations = [...STATIONS].sort((a, b) => b.name.length - a.name.length);
-      const matches: Station[] = [];
-      sortedStations.forEach((st) => {
-        const frName = st.name.toLowerCase();
+      const matchesObj: { station: Station; index: number; matchedLength: number }[] = [];
+
+      STATIONS.forEach((st) => {
+        const rawFr = st.name.toLowerCase();
+        const cleanFr = cleanName(st.name);
         const arName = st.nameAr ? st.nameAr.toLowerCase() : '';
-        if (lower.includes(frName) || (arName && lower.includes(arName))) {
-          if (!matches.some(m => m.id === st.id)) {
-            matches.push(st);
+
+        let foundIdx = -1;
+        let matchLen = 0;
+
+        if (cleanFr.length >= 3 && lower.includes(cleanFr)) {
+          foundIdx = lower.indexOf(cleanFr);
+          matchLen = cleanFr.length;
+        } else if (lower.includes(rawFr)) {
+          foundIdx = lower.indexOf(rawFr);
+          matchLen = rawFr.length;
+        } else if (arName && lower.includes(arName)) {
+          foundIdx = lower.indexOf(arName);
+          matchLen = arName.length;
+        }
+
+        if (foundIdx !== -1) {
+          if (!matchesObj.some(m => m.station.id === st.id)) {
+            matchesObj.push({ station: st, index: foundIdx, matchedLength: matchLen });
           }
         }
       });
 
+      matchesObj.sort((a, b) => a.index - b.index);
+      const matches: Station[] = matchesObj.map(m => m.station);
+
       let routeContext = '';
       if (matches.length >= 2) {
-        const idx0 = lower.indexOf(matches[0].name.toLowerCase());
-        const idx1 = lower.indexOf(matches[1].name.toLowerCase());
-        const orig = idx0 <= idx1 ? matches[0] : matches[1];
-        const dest = idx0 <= idx1 ? matches[1] : matches[0];
+        const orig = matches[0];
+        const dest = matches[1];
 
         const calculatedRoute = computeRoute(STATIONS, LINES, orig.id, dest.id);
         if (calculatedRoute) {
@@ -280,10 +311,8 @@ Règles de réponse :
 
       if (!reply) {
         if (matches.length >= 2) {
-          const idx0 = lower.indexOf(matches[0].name.toLowerCase());
-          const idx1 = lower.indexOf(matches[1].name.toLowerCase());
-          const orig = idx0 <= idx1 ? matches[0] : matches[1];
-          const dest = idx0 <= idx1 ? matches[1] : matches[0];
+          const orig = matches[0];
+          const dest = matches[1];
           const calculatedRoute = computeRoute(STATIONS, LINES, orig.id, dest.id);
           if (calculatedRoute) {
             reply = `🗺️ **Itinéraire de ${orig.name} vers ${dest.name}** :\n\n` +
