@@ -1917,6 +1917,195 @@ export const LINES: LineData[] = [
     type: 'bus_priv',
     color: '#006064',
     stations: ['bp_martyrs', 'bp_triolet', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_01',
+    name: 'Ligne ETUSA 01 (Place des Martyrs - Audin - Telemly - 1er Mai)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_martyrs', 'b_audin', 'b_telemly', 'b_mai']
+  },
+  {
+    id: 'bus_etusa_10',
+    name: 'Ligne ETUSA 10 (Place des Martyrs - Bab El Oued - Chevalley - Bouzaréah)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_chevalley', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_12',
+    name: 'Ligne ETUSA 12 (Place des Martyrs - Bologhine - Aïn Benian)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_ain_benian']
+  },
+  {
+    id: 'bus_etusa_14',
+    name: 'Ligne ETUSA 14 (Tafourah - 1er Mai - Birmandreis - Saoula)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_tafourah', 'b_mai', 'b_birmandreis', 'b_saoula']
+  },
+  {
+    id: 'bus_etusa_16',
+    name: 'Ligne ETUSA 16 (Place des Martyrs - Tafourah - Kouba)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_tafourah', 'b_kouba']
+  },
+  {
+    id: 'bus_etusa_31',
+    name: 'Ligne ETUSA 31 (Place des Martyrs - Audin - 1er Mai - Ruisseau)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_martyrs', 'b_audin', 'b_mai', 'm_ruisseau']
+  },
+  {
+    id: 'bus_etusa_32',
+    name: 'Ligne ETUSA 32 (1er Mai - Hydra - Ben Aknoun)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_mai', 'b_hydra', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_34',
+    name: 'Ligne ETUSA 34 (1er Mai - El Biar - Chevalley)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_mai', 'b_el_biar', 'b_chevalley']
+  },
+  {
+    id: 'bus_etusa_36',
+    name: 'Ligne ETUSA 36 (1er Mai - Kouba - Bachdjerrah)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_mai', 'b_kouba', 'b_bachdjerrah']
+  },
+  {
+    id: 'bus_etusa_43',
+    name: 'Ligne ETUSA 43 (1er Mai - Bab El Oued - Triolet)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_mai', 'b_bab_el_oued']
+  },
+  {
+    id: 'bus_etusa_48',
+    name: 'Ligne ETUSA 48 (1er Mai - Hydra - Ben Aknoun Express)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_mai', 'b_hydra', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_54',
+    name: 'Ligne ETUSA 54 (Maurice Audin - El Biar - Ben Aknoun)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_audin', 'b_el_biar', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_67',
+    name: 'Ligne ETUSA 67 (Tafourah - El Biar - Bouzaréah)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_tafourah', 'b_el_biar', 'b_bouzareah']
+  },
+  {
+    id: 'bus_etusa_72',
+    name: 'Ligne ETUSA 72 (Ben Aknoun - Dely Ibrahim - Chéraga - Staouéli)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_ben_aknoun', 'b_dely_brahim', 'b_cheraga', 'b_staoueli']
+  },
+  {
+    id: 'bus_etusa_88',
+    name: 'Ligne ETUSA 88 (1er Mai - Bachdjerrah - El Harrach - Baraki)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_mai', 'b_bachdjerrah', 'b_harrach', 'b_baraki']
+  },
+  {
+    id: 'bus_etusa_89',
+    name: 'Ligne ETUSA 89 (1er Mai - Kouba - Bachdjerrah Express)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_mai', 'b_kouba', 'b_bachdjerrah']
+  },
+  {
+    id: 'bus_etusa_98',
+    name: 'Ligne ETUSA 98 (1er Mai - El Harrach - Bordj El Bahri - Aïn Taya)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_mai', 'b_harrach', 'b_bordj_bahri', 'b_ain_taya']
+  },
+  {
+    id: 'bus_etusa_99',
+    name: 'Ligne ETUSA 99 (Tafourah - 1er Mai - Aéroport d\'Alger Express)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_tafourah', 'b_mai', 'b_aeroport']
+  },
+  {
+    id: 'bus_etusa_100',
+    name: 'Ligne ETUSA 100 (Place des Martyrs - Bab El Oued - Chevalley - Ben Aknoun)',
+    type: 'bus',
+    color: '#D97706',
+    stations: ['b_martyrs', 'b_bab_el_oued', 'b_chevalley', 'b_ben_aknoun']
+  },
+  {
+    id: 'bus_etusa_101',
+    name: 'Ligne ETUSA 101 (Place des Martyrs - Aïn Benian - Staouéli - Zéralda)',
+    type: 'bus',
+    color: '#F59E0B',
+    stations: ['b_martyrs', 'b_ain_benian', 'b_staoueli', 'b_zeralda']
+  },
+  {
+    id: 'bus_etusa_107',
+    name: 'Ligne ETUSA 107 (1er Mai - Birkhadem - Saoula - Birtouta)',
+    type: 'bus',
+    color: '#B45309',
+    stations: ['b_mai', 'b_birkhadem', 'b_saoula', 'b_birtouta_ville']
+  },
+  {
+    id: 'bus_etusa_111',
+    name: 'Ligne ETUSA 111 (Ben Aknoun - Staouéli - Palm Beach / Sidi Fredj)',
+    type: 'bus',
+    color: '#EA580C',
+    stations: ['b_ben_aknoun', 'b_staoueli', 'b_palm_beach']
+  },
+  {
+    id: 'bus_priv_p17',
+    name: 'Bus Privé P17 (El Harrach - Oued Smar - Bab Ezzouar - Dergana)',
+    type: 'bus_priv',
+    color: '#00ACC1',
+    stations: ['bp_harrach_centre', 'bp_bab_ezzouar_centre', 'tr_dergana']
+  },
+  {
+    id: 'bus_priv_p18',
+    name: 'Bus Privé P18 (Chevalley - Dely Ibrahim - Chéraga - Aïn Benian)',
+    type: 'bus_priv',
+    color: '#00B8D4',
+    stations: ['bp_chevalley', 'bp_dely_brahim', 'bp_cheraga', 'b_ain_benian']
+  },
+  {
+    id: 'bus_priv_p19',
+    name: 'Bus Privé P19 (Ben Aknoun - Birmandreis - Kouba - Ruisseau)',
+    type: 'bus_priv',
+    color: '#0097A7',
+    stations: ['bp_ben_aknoun_gare', 'b_birmandreis', 'bp_kouba_eglise', 'bp_ruisseau']
+  },
+  {
+    id: 'bus_priv_p20',
+    name: 'Bus Privé P20 (El Harrach - Bachdjerrah - Haï El Badr - Kouba)',
+    type: 'bus_priv',
+    color: '#00838F',
+    stations: ['bp_harrach_centre', 'b_bachdjerrah', 'm_badr', 'b_kouba']
+  },
+  {
+    id: 'bus_priv_p21',
+    name: 'Bus Privé P21 (Bab Ezzouar USTHB - Dar El Beïda - Rouïba)',
+    type: 'bus_priv',
+    color: '#006064',
+    stations: ['bp_bab_ezzouar_fac', 't_dar_el_beida', 't_rouiba']
   }
 ];
 

@@ -240,6 +240,71 @@ export const EXCEL_TRANSIT_DATASET: ExcelLineRow[] = [
     tariffDa: 35,
     frequencyMin: 10,
     operatingHours: '06:00 - 20:30'
+  },
+  {
+    lineId: 'bus_etusa_107',
+    lineName: 'Ligne ETUSA 107 (1er Mai ↔ Birkhadem ↔ Saoula ↔ Birtouta)',
+    mode: 'bus',
+    color: '#B45309',
+    terminusA: '1er Mai',
+    terminusB: 'Birtouta Centre',
+    totalStations: 4,
+    stationsOrdered: ['1er Mai', 'Birkhadem', 'Saoula', 'Birtouta Centre'],
+    tariffDa: 30,
+    frequencyMin: 12,
+    operatingHours: '05:30 - 21:30'
+  },
+  {
+    lineId: 'bus_etusa_72',
+    lineName: 'Ligne ETUSA 72 (Ben Aknoun ↔ Dely Ibrahim ↔ Chéraga ↔ Staouéli)',
+    mode: 'bus',
+    color: '#EA580C',
+    terminusA: 'Ben Aknoun Gare',
+    terminusB: 'Staouéli Centre',
+    totalStations: 4,
+    stationsOrdered: ['Ben Aknoun Gare', 'Dely Ibrahim', 'Chéraga Centre', 'Staouéli Centre'],
+    tariffDa: 30,
+    frequencyMin: 10,
+    operatingHours: '05:30 - 21:30'
+  },
+  {
+    lineId: 'bus_etusa_101',
+    lineName: 'Ligne ETUSA 101 (Place des Martyrs ↔ Aïn Benian ↔ Staouéli ↔ Zéralda)',
+    mode: 'bus',
+    color: '#F59E0B',
+    terminusA: 'Place des Martyrs',
+    terminusB: 'Zéralda Ville',
+    totalStations: 4,
+    stationsOrdered: ['Place des Martyrs', 'Aïn Benian', 'Staouéli Centre', 'Zéralda Ville'],
+    tariffDa: 35,
+    frequencyMin: 15,
+    operatingHours: '05:30 - 21:30'
+  },
+  {
+    lineId: 'bus_priv_p18',
+    lineName: 'Bus Privé P18 (Chevalley ↔ Dely Ibrahim ↔ Chéraga ↔ Aïn Benian)',
+    mode: 'bus_priv',
+    color: '#00B8D4',
+    terminusA: 'Chevalley',
+    terminusB: 'Aïn Benian',
+    totalStations: 4,
+    stationsOrdered: ['Chevalley', 'Dely Ibrahim', 'Chéraga Centre', 'Aïn Benian'],
+    tariffDa: 35,
+    frequencyMin: 10,
+    operatingHours: '06:00 - 20:30'
+  },
+  {
+    lineId: 'bus_priv_p19',
+    lineName: 'Bus Privé P19 (Ben Aknoun ↔ Birmandreis ↔ Kouba ↔ Ruisseau)',
+    mode: 'bus_priv',
+    color: '#0097A7',
+    terminusA: 'Ben Aknoun Gare',
+    terminusB: 'Ruisseau Interchange',
+    totalStations: 4,
+    stationsOrdered: ['Ben Aknoun Gare', 'Birmandreis', 'Kouba La Croix', 'Ruisseau Interchange'],
+    tariffDa: 35,
+    frequencyMin: 10,
+    operatingHours: '06:00 - 20:30'
   }
 ];
 

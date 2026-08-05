@@ -17,9 +17,21 @@ export const turso: Client = createClient({
 console.log(`[Turso DB] Connected to database at: ${url.startsWith('file:') ? 'Local SQLite file (' + url + ')' : 'Turso Edge Cloud (' + url + ')'}`);
 
 export async function initTursoDB() {
+  const executeSqlWithRetry = async (sql: string, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await turso.execute(sql);
+      } catch (err) {
+        if (attempt === retries) throw err;
+        console.warn(`[Turso DB] SQL attempt ${attempt} failed, retrying...`);
+        await new Promise(r => setTimeout(r, 1500 * attempt));
+      }
+    }
+  };
+
   try {
     // 1. Create Stations Table
-    await turso.execute(`
+    await executeSqlWithRetry(`
       CREATE TABLE IF NOT EXISTS stations (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -34,7 +46,7 @@ export async function initTursoDB() {
     `);
 
     // 2. Create Lines Table
-    await turso.execute(`
+    await executeSqlWithRetry(`
       CREATE TABLE IF NOT EXISTS lines (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -50,7 +62,7 @@ export async function initTursoDB() {
     `);
 
     // 3. Create Disruption Perturbations Table
-    await turso.execute(`
+    await executeSqlWithRetry(`
       CREATE TABLE IF NOT EXISTS perturbations (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
@@ -64,7 +76,7 @@ export async function initTursoDB() {
     `);
 
     // 4. Create Saved Routes Table
-    await turso.execute(`
+    await executeSqlWithRetry(`
       CREATE TABLE IF NOT EXISTS saved_routes (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -85,6 +97,19 @@ export async function initTursoDB() {
       return result;
     };
 
+    const executeBatchWithRetry = async (chunk: any[], retries = 3) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          await turso.batch(chunk);
+          return;
+        } catch (err) {
+          if (attempt === retries) throw err;
+          console.warn(`[Turso DB] Batch attempt ${attempt} failed, retrying...`);
+          await new Promise(r => setTimeout(r, 1000 * attempt));
+        }
+      }
+    };
+
     // Seed/Upsert Stations in batch
     console.log('[Turso DB] Syncing stations into Turso Database in batch...');
     const stationBatch = STATIONS.map(s => ({
@@ -102,8 +127,8 @@ export async function initTursoDB() {
         JSON.stringify(s.schedule),
       ],
     }));
-    for (const chunk of chunkArray(stationBatch, 25)) {
-      await turso.batch(chunk);
+    for (const chunk of chunkArray(stationBatch, 20)) {
+      await executeBatchWithRetry(chunk);
     }
 
     // Seed/Upsert Lines in batch
@@ -127,8 +152,8 @@ export async function initTursoDB() {
         ],
       };
     });
-    for (const chunk of chunkArray(lineBatch, 25)) {
-      await turso.batch(chunk);
+    for (const chunk of chunkArray(lineBatch, 20)) {
+      await executeBatchWithRetry(chunk);
     }
 
     // Seed Perturbations if empty
